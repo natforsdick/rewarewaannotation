@@ -2,9 +2,30 @@
     "name": "kherronism/rewarewaannotation",
     "homePage": "https://github.com/kherronism/rewarewaannotation",
     "repos": {
+        "git@github.com:kherronism/nf-modules.git": {
+            "modules": {
+                "kherronism": {
+                    "braker3": {
+                        "branch": "master",
+                        "git_sha": "99affb3e50ab8921f8e4e8712b85a5a529a8f6fa",
+                        "installed_by": ["modules"]
+                    },
+                    "picard/collectalignmentsummarymetrics": {
+                        "branch": "master",
+                        "git_sha": "99affb3e50ab8921f8e4e8712b85a5a529a8f6fa",
+                        "installed_by": ["modules"]
+                    }
+                }
+            }
+        },
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
+                    "busco": {
+                        "branch": "master",
+                        "git_sha": "911696ea0b62df80e900ef244d7867d177971f73",
+                        "installed_by": ["modules"]
+                    },
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
                         "git_sha": "76cc4938c1f6ea5c7d83fed1eeffc146787f9543",
@@ -18,6 +39,31 @@
                     "multiqc": {
                         "branch": "master",
                         "git_sha": "f2d63bd5b68925f98f572eed70993d205cc694b7",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/sort": {
+                        "branch": "master",
+                        "git_sha": "a0f7be95788366c1923171e358da7d049eb440f9",
+                        "installed_by": ["modules"]
+                    },
+                    "samtools/view": {
+                        "branch": "master",
+                        "git_sha": "3ffae3598260a99e8db3207dead9f73f87f90d1f",
+                        "installed_by": ["modules"]
+                    },
+                    "star/align": {
+                        "branch": "master",
+                        "git_sha": "57d75dbac06812c59798a48585032f6e50bb1914",
+                        "installed_by": ["modules"]
+                    },
+                    "star/genomegenerate": {
+                        "branch": "master",
+                        "git_sha": "603ecbd9f45300c9788f197d2a15a005685b4220",
+                        "installed_by": ["modules"]
+                    },
+                    "trimgalore": {
+                        "branch": "master",
+                        "git_sha": "911696ea0b62df80e900ef244d7867d177971f73",
                         "installed_by": ["modules"]
                     }
                 }

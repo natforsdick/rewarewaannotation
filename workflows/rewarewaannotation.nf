@@ -4,18 +4,36 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
+include { validateParameters; paramsHelp; paramsSummaryLog; paramsSummaryMap; fromSamplesheet } from 'plugins/nf-validation'
+
+def valid_params = []
+
+def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
+def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
+def summary_params = paramsSummaryMap(workflow)
+
+// Print help message if needed
+if (params.help) {
+    def String command = "nextflow run ${workflow.manifest.name} --input samplesheet.csv -profile singularity"
+    log.info logo + paramsHelp(command) + citation + NfcoreTemplate.dashedLine(params.monochrome_logs)
+    System.exit(0)
+}
 
 // Validate input parameters
+if (params.validate_params) {
+    validateParameters()
+}
+
+// Print parameter summary log to screen
+log.info logo + paramsSummaryLog(workflow) + citation
+
 WorkflowRewarewaannotation.initialise(params, log)
 
-// TODO nf-core: Add all file path parameters for the pipeline to the list below
-// Check input path parameters to see if they exist
-def checkPathParamList = [ params.input, params.multiqc_config, params.fasta ]
-for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
+// Create a new channel of metadata from a sample sheet
+// NB: `input` corresponds to `params.input` and associated sample sheet schema
+ch_input = Channel.fromSamplesheet("input")
 
-// Check mandatory parameters
-if (params.input) { ch_input = file(params.input) } else { exit 1, 'Input samplesheet not specified!' }
+
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -35,9 +53,13 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 */
 
 //
-// SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
+// MODULE: Loaded from modules/kherronism/
 //
-include { INPUT_CHECK } from '../subworkflows/local/input_check'
+
+//
+// SUBWORKFLOW: Consisting of a mix of local, kherronism/nf-modules and nf-core/modules
+//
+//include { INPUT_CHECK } from '../subworkflows/local/input_check'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -66,15 +88,28 @@ workflow REWAREWAANNOTATION {
     ch_versions = Channel.empty()
 
     //
-    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+    // Create input channel from input file provided through params.input
     //
-    INPUT_CHECK (
-        ch_input
-    )
-    ch_versions = ch_versions.mix(INPUT_CHECK.out.versions)
+    ch_input = Channel.fromSamplesheet("input")
+
+    ch_input
+    .map {
+        meta, fastq1, fastq2 ->
+            new_id = meta.id - ~/_T\d+/
+            [ meta + [id: new_id], fastq1, fastq2 ]
+    }
+    .groupTuple()
+    .branch {
+        meta, fastq1, fastq2 ->
+            single  : fastq2 == []
+                return [ meta, fastq1 ]
+            multiple: fastq2.size() > 1
+                return [ meta, fastq1, fastq2 ]
+    }
+    .set { ch_fastq }
 
     //
-    // MODULE: Run FastQC
+    // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
     //
     FASTQC (
         INPUT_CHECK.out.reads

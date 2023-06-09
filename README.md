@@ -4,24 +4,28 @@
 [![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
 [![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
 [![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
-[![Launch on Nextflow Tower](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Nextflow%20Tower-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/kherronism/rewarewaannotation)
+[![Launch on Nextflow Tower](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Nextflow%20Tower-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/nf/rewarewaannotation)
 
 ## Introduction
 
-**kherronism/rewarewaannotation** is a bioinformatics pipeline that ...
+**kherronism/rewarewaannotation** is a bioinformatics pipeline built in Nextflow, originally developed for the annotation of the rewarewa (Knightia excelsa) genome.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+
 
 <!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
      workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
+Default steps in the pipeline:
 1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+2. Adapter and quality trimming ([`Trim Galore!`](https://www.bioinformatics.babraham.ac.uk/projects/trim_galore/))
+3. Alignment ([`STAR`](https://github.com/alexdobin/STAR))
+4. Sort and index alignments ([`SAMtools`](https://sourceforge.net/projects/samtools/files/samtools/))
+5. Alignment summary metrics ([`picard CollectAlignmentSummaryMetrics`](https://broadinstitute.github.io/picard/))
+6. Build custom repeat database ([`RepeatModeler`](https://www.repeatmasker.org/RepeatModeler/))
+7. Mask repeats in genome assembly ([`RepeatMasker`](https://www.repeatmasker.org/))
+8. Genome annotation ([`BRAKER3`](https://github.com/Gaius-Augustus/BRAKER)
+9. Annotation QC ([`BUSCO`](https://busco.ezlab.org/)
+10. Present QC for raw reads, alignment and annotation ([`MultiQC`](http://multiqc.info/))
 
 ## Usage
 
@@ -64,24 +68,13 @@ nextflow run kherronism/rewarewaannotation \
 
 ## Credits
 
-kherronism/rewarewaannotation was originally written by Katie Herron.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
-
-## Contributions and Support
-
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
+Pipeline originally written and implemented by Ann McCartney and ported to Nextflow by Katie Herron.
 
 ## Citations
 
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use  kherronism/rewarewaannotation for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
+If you use kherronism/rewarewaannotation for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX)
 
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
-
-An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
+An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](nf-rewarewaannotation/CITATIONS.md) file.
 
 This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).
 
