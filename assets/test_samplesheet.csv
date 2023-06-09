@@ -1,0 +1,4 @@
+sample_id,data_type,file_1,file_2
+SAMPLE_1,Assembly,https://raw.githubusercontent.com/nf-core/test-datasets/mmseqs/data/genomics/homo_sapiens/genome/genome.fasta,
+SAMPLE_1,RNAseq,https://github.com/nf-core/test-datasets/raw/mmseqs/data/genomics/homo_sapiens/illumina/fastq/test2_1.fastq.gz,https://github.com/nf-core/test-datasets/raw/mmseqs/data/genomics/homo_sapiens/illumina/fastq/test2_2.fastq.gz
+SAMPLE_1,RNAseq,https://github.com/nf-core/test-datasets/raw/mmseqs/data/genomics/homo_sapiens/illumina/fastq/test_1.fastq.gz,

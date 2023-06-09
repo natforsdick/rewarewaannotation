@@ -33,8 +33,6 @@ WorkflowRewarewaannotation.initialise(params, log)
 // NB: `input` corresponds to `params.input` and associated sample sheet schema
 ch_input = Channel.fromSamplesheet("input")
 
-
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
