@@ -7,17 +7,40 @@
     "items": {
         "type": "object",
         "properties": {
-            "sample": {
+            "sample_id": {
                 "type": "string",
                 "pattern": "^\\S+$",
-                "errorMessage": "Sample name must be provided and cannot contain spaces"
+                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "meta": ["id"]
             },
-            "fastq_1": {
+            "data_type": {
                 "type": "string",
-                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "errorMessage": "Type of data must be provided and be one of 'RNAseq', 'Assembly', 'Protein evidence'",
+                "enum": ["RNAseq", "Assembly", "Protein evidence"]
             },
-            "fastq_2": {
+            "file_1": {
+                "type": "string",
+                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'",
+                "anyOf": [
+                    {
+                        "properties": {
+                            "data_type": {
+                                "const": "RNAseq"
+                            }
+                        },
+                        "pattern": "^\\S+\\.f(ast)?q\\.gz$"
+                    },
+                    {
+                        "properties": {
+                            "data_type": {
+                                "enum": ["Assembly", "Protein evidence"]
+                            }
+                        },
+                        "pattern": "^\\S+\\.(fa(st)?|fna|fasta)$"
+                    }
+                ]
+            },
+            "file_2": {
                 "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'",
                 "anyOf": [
                     {
@@ -28,9 +51,17 @@
                         "type": "string",
                         "maxLength": 0
                     }
-                ]
+                ],
+                "dependentRequired": [
+                    "file_1"
+                ],
+                "dependentSchemas": {
+                    "data_type": {
+                        "const": "RNAseq"
+                    }
+                }
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["sample_id", "data_type", "file_1"]
     }
 }
