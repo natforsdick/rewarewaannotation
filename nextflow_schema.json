@@ -10,10 +10,7 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": [
-                "input",
-                "outdir"
-            ],
+            "required": ["input", "assembly", "assembly_name", "outdir"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -24,6 +21,21 @@
                     "description": "Path to comma-separated file containing information about the samples in the experiment.",
                     "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
                     "fa_icon": "fas fa-file-csv"
+                },
+                "assembly": {
+                    "type": "string",
+                    "fa_icon": "fas fa-dna",
+                    "description": "Path to input assembly to be annotated."
+                },
+                "assembly_name": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file-signature"
+                },
+                "busco_dbs": {
+                    "type": "string",
+                    "fa_icon": "fas fa-percent",
+                    "description": "Comma-delinated string list of lineages to be passed to the BUSCO command.",
+                    "default": "eukaryota_odb10"
                 },
                 "outdir": {
                     "type": "string",
@@ -45,12 +57,111 @@
                 }
             }
         },
-        "reference_genome_options": {
-            "title": "Reference genome options",
+        "trimgalore_options": {
+            "title": "TrimGalore options",
             "type": "object",
-            "fa_icon": "fas fa-dna",
-            "description": "Reference genome related files and options required for the workflow.",
-            "properties": {}
+            "description": "Parameters for TrimGalore!",
+            "default": "",
+            "properties": {
+                "extra_trimgalore_args": {
+                    "type": "string",
+                    "description": "Extra arguments to pass to Trim Galore! command in addition to defaults defined by the pipeline.",
+                    "fa_icon": "far fa-hand-scissors"
+                },
+                "extra_trimgalore_hardtrim_args": {
+                    "type": "string",
+                    "description": "Arguments to pass to Trim Galore! command for hard-trimming. Required to be specified for hard-trimming of reads.",
+                    "fa_icon": "fas fa-hand-scissors"
+                }
+            },
+            "fa_icon": "fas fa-cut"
+        },
+        "star_options": {
+            "title": "STAR options",
+            "type": "object",
+            "description": "Parameters for STAR commands.",
+            "default": "",
+            "properties": {
+                "extra_star_genomegenerate_args": {
+                    "type": "string",
+                    "fa_icon": "fas fa-address-book",
+                    "description": "Extra arguments to pass to STAR genomeGenerate indexing command in addition to defaults defined by the pipeline."
+                },
+                "extra_star_align_args": {
+                    "type": "string",
+                    "fa_icon": "fas fa-align-center"
+                }
+            },
+            "fa_icon": "fas fa-star"
+        },
+        "samtools_options": {
+            "title": "Samtools options",
+            "type": "object",
+            "description": "Parameters for samtools commands.",
+            "default": "",
+            "properties": {
+                "extra_samtool_view_args": {
+                    "type": "string"
+                },
+                "extra_samtool_sort_args": {
+                    "type": "string"
+                }
+            }
+        },
+        "picard_options": {
+            "title": "Picard options",
+            "type": "object",
+            "description": "Parameters for picard commands.",
+            "default": "",
+            "properties": {
+                "extra_picard_alignment_metrics_args": {
+                    "type": "string"
+                }
+            }
+        },
+        "pipeline_options": {
+            "title": "Pipeline options",
+            "type": "object",
+            "description": "Parameters used to control which parts of the pipeline are run.",
+            "default": "",
+            "properties": {
+                "skip_fastqc": {
+                    "type": "boolean",
+                    "description": "Skip FASTQC.",
+                    "fa_icon": "fas fa-forward"
+                },
+                "skip_trimming": {
+                    "type": "boolean",
+                    "description": "Skip read trimming.",
+                    "fa_icon": "fas fa-forward"
+                },
+                "skip_hard_trimming": {
+                    "type": "boolean",
+                    "description": "Skip hard-trimming. Requires params.skip_trimming to be false.",
+                    "fa_icon": "fas fa-forward"
+                },
+                "skip_read_alignment": {
+                    "type": "string",
+                    "default": "False",
+                    "fa_icon": "fas fa-forward"
+                },
+                "skip_picard_alignment_metrics": {
+                    "type": "string",
+                    "default": "False",
+                    "fa_icon": "fas fa-forward"
+                },
+                "skip_busco_genome": {
+                    "type": "boolean",
+                    "description": "Skip BUSCO genome assessment.",
+                    "fa_icon": "fas fa-forward"
+                },
+                "skip_busco_annotation": {
+                    "type": "boolean",
+                    "description": "Skip BUSCO genome annotation assessment.",
+                    "fa_icon": "fas fa-forward"
+                }
+            },
+            "fa_icon": "fas fa-stream"
         },
         "institutional_config_options": {
             "title": "Institutional config options",
@@ -103,7 +214,7 @@
         "max_job_request_options": {
             "title": "Max job request options",
             "type": "object",
-            "fa_icon": "fab fa-acquisitions-incorporated",
+            "fa_icon": "fas fa-desktop",
             "description": "Set the top limit for requested resources for any single job.",
             "help_text": "If you are running on a smaller system, a pipeline step requesting more resources than are available may cause the Nextflow to stop the run with an error. These options allow you to cap the maximum resources requested by any single job so that the pipeline will run on your system.\n\nNote that you can not _increase_ the resources requested by any job using these options. For that you will need your own configuration file. See [the nf-core website](https://nf-co.re/usage/configuration) for details.",
             "properties": {
@@ -160,14 +271,7 @@
                     "description": "Method used to save pipeline results to output directory.",
                     "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
                     "fa_icon": "fas fa-copy",
-                    "enum": [
-                        "symlink",
-                        "rellink",
-                        "link",
-                        "copy",
-                        "copyNoFollow",
-                        "move"
-                    ],
+                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
                     "hidden": true
                 },
                 "email_on_fail": {
@@ -251,7 +355,19 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/reference_genome_options"
+            "$ref": "#/definitions/trimgalore_options"
+        },
+        {
+            "$ref": "#/definitions/star_options"
+        },
+        {
+            "$ref": "#/definitions/samtools_options"
+        },
+        {
+            "$ref": "#/definitions/picard_options"
+        },
+        {
+            "$ref": "#/definitions/pipeline_options"
         },
         {
             "$ref": "#/definitions/institutional_config_options"

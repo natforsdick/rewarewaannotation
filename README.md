@@ -52,13 +52,24 @@ Each row represents a fastq file (single-end) or a pair of fastq files (paired e
 
 Now, you can run the pipeline using:
 
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
-
 ```bash
 nextflow run kherronism/rewarewaannotation \
    -profile <docker/singularity/.../institute> \
    --input samplesheet.csv \
    --outdir <OUTDIR>
+```
+
+To resume a run, add the [`-resume`](https://nf-co.re/usage/running#resume-a-pipeline) flag and Nextflow will take care of the rest.
+
+To re-run the pipeline with the parameters used for _rewarewa_ (example samplesheet.csv given in `test-datasets` folder):
+```bash
+  nextflow run kherronism/rewarewaannotation \
+   -profile <docker/singularity/.../institute> \
+   --input samplesheet.csv \
+   --outdir <OUTDIR> \
+   --extra_trimgalore_args "--illumina -j 2" \
+   --extra_trimgalore_hard_trim_args "--hardtrim3 100" \
+   --extra_star_genomegenerate_args "--genomeSAindexNbases 13"
 ```
 
 > **Warning:**

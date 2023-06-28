@@ -7,12 +7,12 @@
                 "kherronism": {
                     "braker3": {
                         "branch": "master",
-                        "git_sha": "99affb3e50ab8921f8e4e8712b85a5a529a8f6fa",
+                        "git_sha": "086b29c1364557456b7d86c3baee9780757cdebb",
                         "installed_by": ["modules"]
                     },
                     "picard/collectalignmentsummarymetrics": {
                         "branch": "master",
-                        "git_sha": "99affb3e50ab8921f8e4e8712b85a5a529a8f6fa",
+                        "git_sha": "086b29c1364557456b7d86c3baee9780757cdebb",
                         "installed_by": ["modules"]
                     }
                 }
@@ -28,17 +28,17 @@
                     },
                     "custom/dumpsoftwareversions": {
                         "branch": "master",
-                        "git_sha": "76cc4938c1f6ea5c7d83fed1eeffc146787f9543",
+                        "git_sha": "911696ea0b62df80e900ef244d7867d177971f73",
                         "installed_by": ["modules"]
                     },
                     "fastqc": {
                         "branch": "master",
-                        "git_sha": "c8e35eb2055c099720a75538d1b8adb3fb5a464c",
+                        "git_sha": "911696ea0b62df80e900ef244d7867d177971f73",
                         "installed_by": ["modules"]
                     },
                     "multiqc": {
                         "branch": "master",
-                        "git_sha": "f2d63bd5b68925f98f572eed70993d205cc694b7",
+                        "git_sha": "911696ea0b62df80e900ef244d7867d177971f73",
                         "installed_by": ["modules"]
                     },
                     "samtools/sort": {
@@ -59,7 +59,8 @@
                     "star/genomegenerate": {
                         "branch": "master",
                         "git_sha": "603ecbd9f45300c9788f197d2a15a005685b4220",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/star/genomegenerate/star-genomegenerate.diff"
                     },
                     "trimgalore": {
                         "branch": "master",

@@ -29,10 +29,6 @@ log.info logo + paramsSummaryLog(workflow) + citation
 
 WorkflowRewarewaannotation.initialise(params, log)
 
-// Create a new channel of metadata from a sample sheet
-// NB: `input` corresponds to `params.input` and associated sample sheet schema
-ch_input = Channel.fromSamplesheet("input")
-
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     CONFIG FILES
@@ -51,13 +47,11 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 */
 
 //
-// MODULE: Loaded from modules/kherronism/
-//
-
-//
 // SUBWORKFLOW: Consisting of a mix of local, kherronism/nf-modules and nf-core/modules
 //
-//include { INPUT_CHECK } from '../subworkflows/local/input_check'
+include { FASTQ_QC_ALIGN_STATS              } from '../subworkflows/local/fastq_qc_align_stats/main'
+//include { FASTA_QC_MASKING                  } from '../subworkflows/local/fasta_qc_masking/main'
+//include { FASTA_ANNOTATION_QC_BRAKER3_BUSCO } from '../subworkflows/local/genome_annotation/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,7 +62,6 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 //
 // MODULE: Installed directly from nf-core/modules
 //
-include { FASTQC                      } from '../modules/nf-core/fastqc/main'
 include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
@@ -84,34 +77,38 @@ def multiqc_report = []
 workflow REWAREWAANNOTATION {
 
     ch_versions = Channel.empty()
-
     //
     // Create input channel from input file provided through params.input
     //
-    ch_input = Channel.fromSamplesheet("input")
-    ch_input.view()
+    ch_reads = Channel.fromPath(params.input)
+        | splitCsv( header: true, quote: '\"' )
+        | map { row -> [[id: row.sample_id, single_end: false], [file(row.file1), file(row.file2)]] }
 
-    ch_input
-    .map {
-        meta, fastq1, fastq2 ->
-            new_id = meta.id - ~/_T\d+/
-            [ meta + [id: new_id], fastq1, fastq2 ]
-    }
-    .groupTuple()
-    .branch {
-        meta, fastq1, fastq2 ->
-            single  : fastq2 == []
-                return [ meta, fastq1 ]
-            multiple: fastq2.size() > 1
-                return [ meta, fastq1, fastq2 ]
-    }
-    .set { ch_fastq }
-    ch_fastq.multiple.view()
-
+    ch_assembly = Channel.value([[id: params.assembly_name], file(params.assembly)])
 
     //
     // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
     //
+    skip_hard_trimming = (params.extra_trimgalore_hardtrim_args == null) ? true : params.skip_hard_trimming
+    FASTQ_QC_ALIGN_STATS (
+        ch_reads,
+        ch_assembly,
+        params.skip_fastqc,
+        params.skip_trimming,
+        skip_hard_trimming,
+        params.skip_read_alignment,
+        params.skip_picard_alignment_metrics
+    )
+
+    //
+    // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
+    //
+    // FASTA_QC_MASKING()
+
+    //
+    // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
+    //
+    // FASTA_ANNOTATION_QC_BRAKER3_BUSCO ()
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
@@ -130,7 +127,31 @@ workflow REWAREWAANNOTATION {
     ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
     ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-    //ch_multiqc_files = ch_multiqc_files.mix(FASTQC.out.zip.collect{it[1]}.ifEmpty([]))
+
+    // Adding untrimmed read QC
+    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.raw_fastqc_zip.collect{it[1]}.ifEmpty([]))
+    if (!params.skip_trimming) {
+        // Adding trimmed read QC
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.trim_fastqc_zip.collect{it[1]}.ifEmpty([]))
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.trim_log.collect{it[1]}.ifEmpty([]))
+        if (!params.skip_hard_trimming) {
+            // Adding hard trimmmed read QC
+            ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.hardtrim_fastqc_zip.collect{it[1]}.ifEmpty([]))
+            ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.hardtrim_log.collect{it[1]}.ifEmpty([]))
+        }
+    }
+    // Adding BAM QC
+    if (!params.skip_read_alignment) {
+        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.metrics.collect{it[1]}.ifEmpty([]))
+    }
+    // Adding BUSCO genome assessment
+    //if (!params.skip_busco_genome) {
+    //    ch_multiqc_files = ch_multiqc_files.mix(FASTA_QC_MASKING.out.busco_summary.collect{it[1]}.ifEmpty([]))
+    //}
+    // Adding BUSCO annotation assessment
+    //if (!parma.skip_busco_annotation) {
+    //    ch_multiqc_files = ch_multiqc_files.mix(FASTA_ANNOTATION_QC_BRAKER3_BUSCO.out.busco_summary.collect{it[1]}.ifEmpty([]))
+    //}
 
     MULTIQC (
         ch_multiqc_files.collect(),
