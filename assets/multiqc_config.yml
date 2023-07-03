@@ -13,3 +13,37 @@ report_section_order:
     order: -1002
 
 export_plots: true
+
+run_modules:
+  - custom_content
+  - fastqc
+  - cutadapt
+  - star
+  - picard
+
+module_order:
+  - fastqc:
+      name: "FastQC (raw)"
+      info: "This section of the report shows FastQC results before adapter trimming."
+      path_filters:
+        - "./fastqc/raw/*.zip"
+  - cutadapt:
+      name: "Cutadapt trimming (TrimGalore!)"
+      path_filters:
+        - "./trimgalore/trim/*.txt"
+  - fastqc:
+      name: "FastQC (trimmed)"
+      info: "This section of the report shows FastQC results after adapter trimming."
+      path_filters:
+        - "./fastqc/trim/*.zip"
+  - cutadapt:
+      name: "Cutadapt hard-trimming (TrimGalore!)"
+      path_filters:
+          "./trimgalore/hardtrim/*.txt"
+  - fastqc:
+        name: "FastQC (hard-trimmed)"
+        info: "This section of the report shows FastQC results after adapter trimming."
+        path_filters:
+          - "./fastqc/hardtrim/*.zip"
+  - star
+  - picard

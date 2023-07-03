@@ -1,7 +1,8 @@
-include { FASTQC                      } from '../../../modules/nf-core/fastqc/main'
 include { TRIMGALORE as TRIMMING      } from '../../../modules/nf-core/trimgalore/main'
 include { TRIMGALORE as HARD_TRIMMING } from '../../../modules/nf-core/trimgalore/main'
-
+include { FASTQC as FASTQC_RAW        } from '../../../modules/nf-core/fastqc/main'
+include { FASTQC as FASTQC_TRIM       } from '../../../modules/nf-core/fastqc/main'
+include { FASTQC as FASTQC_HARDTRIM   } from '../../../modules/nf-core/fastqc/main'
 
 workflow FASTQ_QC_FASTQC_TRIMGALORE {
 
@@ -12,19 +13,7 @@ workflow FASTQ_QC_FASTQC_TRIMGALORE {
     skip_hard_trimming
 
     main:
-    ch_versions = Channel.empty()
-
-    fastqc_html = Channel.empty()
-    fastqc_zip  = Channel.empty()
-    if (!skip_fastqc) {
-        FASTQC (
-             ch_fastq
-        )
-        fastqc_html = FASTQC.out.html
-        fastqc_zip  = FASTQC.out.zip
-        ch_versions = ch_versions.mix(FASTQC.out.versions.first())
-    }
-
+    ch_versions       = Channel.empty()
     trim_reads        = Channel.empty()
     trim_log          = Channel.empty()
     trim_unpaired     = Channel.empty()
@@ -42,8 +31,6 @@ workflow FASTQ_QC_FASTQC_TRIMGALORE {
         trim_reads    = TRIMMING.out.reads
         trim_log      = TRIMMING.out.log
         trim_unpaired = TRIMMING.out.unpaired
-        trim_html     = TRIMMING.out.html
-        trim_zip      = TRIMMING.out.zip
         if (!skip_hard_trimming) {
             HARD_TRIMMING (
                 trim_reads
@@ -51,10 +38,35 @@ workflow FASTQ_QC_FASTQC_TRIMGALORE {
             hardtrim_reads    = HARD_TRIMMING.out.reads
             hardtrim_log      = HARD_TRIMMING.out.log
             hardtrim_unpaired = HARD_TRIMMING.out.unpaired
-            hardtrim_html     = HARD_TRIMMING.out.html
-            hardtrim_zip      = HARD_TRIMMING.out.zip
         }
         ch_versions = ch_versions.mix(TRIMMING.out.versions.first())
+    }
+
+    fastqc_html = Channel.empty()
+    fastqc_zip  = Channel.empty()
+    if (!skip_fastqc) {
+        FASTQC_RAW (
+             ch_fastq
+        )
+        fastqc_html = FASTQC_RAW.out.html
+        fastqc_zip  = FASTQC_RAW.out.zip
+        ch_versions = ch_versions.mix(FASTQC_RAW.out.versions.first())
+        if (!skip_trimming) {
+            FASTQC_TRIM (
+             trim_reads
+            )
+            trim_html   = FASTQC_TRIM.out.html
+            trim_zip    = FASTQC_TRIM.out.zip
+            ch_versions = ch_versions.mix(FASTQC_TRIM.out.versions.first())
+            if(!skip_hard_trimming) {
+                FASTQC_HARDTRIM (
+                    hardtrim_reads
+                )
+                hardtrim_html = FASTQC_HARDTRIM.out.html
+                hardtrim_zip  = FASTQC_HARDTRIM.out.zip
+                ch_versions = ch_versions.mix(FASTQC_HARDTRIM.out.versions.first())
+            }
+        }
     }
 
     emit:

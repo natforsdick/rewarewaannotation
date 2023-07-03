@@ -7,10 +7,19 @@ process MULTIQC {
         'biocontainers/multiqc:1.14--pyhdfd78af_0' }"
 
     input:
-    path  multiqc_files, stageAs: "?/*"
-    path(multiqc_config)
-    path(extra_multiqc_config)
-    path(multiqc_logo)
+    path multiqc_config
+    path extra_multiqc_config
+    path software_versions
+    path workflow_summary
+    path methods_description
+    path multiqc_logo
+    path ('fastqc/raw/*')
+    path ('trimgalore/trim/*')
+    path ('fastqc/trim/*')
+    path ('trimgalore/hardtrim/*')
+    path ('fastqc/hardtrim/*')
+    path ('star/*')
+    path ('picard_alignment_metrics/*')
 
     output:
     path "*multiqc_report.html", emit: report

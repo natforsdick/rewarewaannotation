@@ -93,12 +93,14 @@ workflow REWAREWAANNOTATION {
     FASTQ_QC_ALIGN_STATS (
         ch_reads,
         ch_assembly,
+        params.align_reads_together,
         params.skip_fastqc,
         params.skip_trimming,
         skip_hard_trimming,
         params.skip_read_alignment,
         params.skip_picard_alignment_metrics
     )
+    ch_versions = ch_versions.mix(FASTQ_QC_ALIGN_STATS.out.versions)
 
     //
     // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
@@ -123,41 +125,20 @@ workflow REWAREWAANNOTATION {
     methods_description    = WorkflowRewarewaannotation.methodsDescriptionText(workflow, ch_multiqc_custom_methods_description)
     ch_methods_description = Channel.value(methods_description)
 
-    ch_multiqc_files = Channel.empty()
-    ch_multiqc_files = ch_multiqc_files.mix(ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'))
-    ch_multiqc_files = ch_multiqc_files.mix(CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect())
-
-    // Adding untrimmed read QC
-    ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.raw_fastqc_zip.collect{it[1]}.ifEmpty([]))
-    if (!params.skip_trimming) {
-        // Adding trimmed read QC
-        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.trim_fastqc_zip.collect{it[1]}.ifEmpty([]))
-        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.trim_log.collect{it[1]}.ifEmpty([]))
-        if (!params.skip_hard_trimming) {
-            // Adding hard trimmmed read QC
-            ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.hardtrim_fastqc_zip.collect{it[1]}.ifEmpty([]))
-            ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.hardtrim_log.collect{it[1]}.ifEmpty([]))
-        }
-    }
-    // Adding BAM QC
-    if (!params.skip_read_alignment) {
-        ch_multiqc_files = ch_multiqc_files.mix(FASTQ_QC_ALIGN_STATS.out.metrics.collect{it[1]}.ifEmpty([]))
-    }
-    // Adding BUSCO genome assessment
-    //if (!params.skip_busco_genome) {
-    //    ch_multiqc_files = ch_multiqc_files.mix(FASTA_QC_MASKING.out.busco_summary.collect{it[1]}.ifEmpty([]))
-    //}
-    // Adding BUSCO annotation assessment
-    //if (!parma.skip_busco_annotation) {
-    //    ch_multiqc_files = ch_multiqc_files.mix(FASTA_ANNOTATION_QC_BRAKER3_BUSCO.out.busco_summary.collect{it[1]}.ifEmpty([]))
-    //}
-
     MULTIQC (
-        ch_multiqc_files.collect(),
         ch_multiqc_config.toList(),
-        ch_multiqc_custom_config.toList(),
-        ch_multiqc_logo.toList()
+        ch_multiqc_custom_config.toList().ifEmpty([]),
+        CUSTOM_DUMPSOFTWAREVERSIONS.out.mqc_yml.collect().ifEmpty([]),
+        ch_workflow_summary.collectFile(name: 'workflow_summary_mqc.yaml'),
+        ch_methods_description.collectFile(name: 'methods_description_mqc.yaml'),
+        ch_multiqc_logo.toList().ifEmpty([]),
+        FASTQ_QC_ALIGN_STATS.out.raw_fastqc_zip.collect{it[1]}.ifEmpty([]),
+        FASTQ_QC_ALIGN_STATS.out.trim_log.collect{it[1]}.ifEmpty([]),
+        FASTQ_QC_ALIGN_STATS.out.trim_fastqc_zip.collect{it[1]}.ifEmpty([]),
+        FASTQ_QC_ALIGN_STATS.out.hardtrim_log.collect{it[1]}.ifEmpty([]),
+        FASTQ_QC_ALIGN_STATS.out.hardtrim_fastqc_zip.collect{it[1]}.ifEmpty([]),
+        FASTQ_QC_ALIGN_STATS.out.star_align_log_final.collect{it[1]}.ifEmpty([]),
+        FASTQ_QC_ALIGN_STATS.out.metrics.collect{it[1]}.ifEmpty([])
     )
     multiqc_report = MULTIQC.out.report.toList()
 }

@@ -7,6 +7,7 @@ workflow FASTQ_QC_ALIGN_STATS {
     take:
     ch_fastq
     ch_assembly
+    align_reads_together
     skip_fastqc
     skip_trimming
     skip_hard_trimming
@@ -26,7 +27,7 @@ workflow FASTQ_QC_ALIGN_STATS {
     trim_log             = Channel.empty()
     hardtrim_fastqc_html = Channel.empty()
     hardtrim_fastqc_zip  = Channel.empty()
-    hardtrim_logs        = Channel.empty()
+    hardtrim_log        = Channel.empty()
 
     FASTQ_QC_FASTQC_TRIMGALORE (
         ch_fastq,
@@ -62,7 +63,8 @@ workflow FASTQ_QC_ALIGN_STATS {
     if (!skip_read_alignment) {
         FASTQ_INDEX_ALIGN_STAR_SAMTOOLS (
             trim_reads,
-            ch_assembly
+            ch_assembly,
+            align_reads_together
         )
         star_index           = FASTQ_INDEX_ALIGN_STAR_SAMTOOLS.out.star_index
         star_align_log_out   = FASTQ_INDEX_ALIGN_STAR_SAMTOOLS.out.star_align_log_out

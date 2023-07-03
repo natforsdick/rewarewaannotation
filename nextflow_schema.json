@@ -94,20 +94,6 @@
             },
             "fa_icon": "fas fa-star"
         },
-        "samtools_options": {
-            "title": "Samtools options",
-            "type": "object",
-            "description": "Parameters for samtools commands.",
-            "default": "",
-            "properties": {
-                "extra_samtool_view_args": {
-                    "type": "string"
-                },
-                "extra_samtool_sort_args": {
-                    "type": "string"
-                }
-            }
-        },
         "picard_options": {
             "title": "Picard options",
             "type": "object",
@@ -361,9 +347,6 @@
             "$ref": "#/definitions/star_options"
         },
         {
-            "$ref": "#/definitions/samtools_options"
-        },
-        {
             "$ref": "#/definitions/picard_options"
         },
         {
@@ -378,5 +361,11 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ]
+    ],
+    "properties": {
+        "align_reads_together": {
+            "type": "boolean",
+            "default": true
+        }
+    }
 }
