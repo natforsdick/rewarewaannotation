@@ -1,0 +1,27 @@
+Changes in module 'nf-core/multiqc'
+--- modules/nf-core/multiqc/main.nf
++++ modules/nf-core/multiqc/main.nf
+@@ -7,10 +7,17 @@
+         'biocontainers/multiqc:1.14--pyhdfd78af_0' }"
+ 
+     input:
+-    path  multiqc_files, stageAs: "?/*"
+-    path(multiqc_config)
+-    path(extra_multiqc_config)
+-    path(multiqc_logo)
++    path multiqc_config
++    path extra_multiqc_config
++    path software_versions
++    path workflow_summary
++    path methods_description
++    path multiqc_logo
++    path ('fastqc/raw/*')
++    path ('fastqc/trim/*')
++    path ('trim_log/*')
++    path ('star/*')
++    path ('picard_alignment_metrics/*')
+ 
+     output:
+     path "*multiqc_report.html", emit: report
+
+************************************************************
