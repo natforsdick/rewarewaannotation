@@ -20,6 +20,8 @@ process MULTIQC {
     path ('fastqc/hardtrim/*')
     path ('star/*')
     path ('picard_alignment_metrics/*')
+    path ('busco/genome/*')
+    path ('busco/annotation/*')
 
     output:
     path "*multiqc_report.html", emit: report

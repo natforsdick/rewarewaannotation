@@ -1,53 +1,136 @@
-# kherronism/rewarewaannotation: Output
+# Pipeline output
 
 ## Introduction
 
-This document describes the output produced by the pipeline. Most of the plots are taken from the MultiQC report, which summarises results at the end of the pipeline.
+This document describes the output produced by the pipeline.
 
-The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
-
-<!-- TODO nf-core: Write this documentation describing your workflow's output -->
-
-## Pipeline overview
+## Pipeline summary
 
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
-- [FastQC](#fastqc) - Raw read QC
-- [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
-- [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
+### 1. Input preparation - Checks, validates and prepares input files
 
-### FastQC
+  - gunzip - If required, uncompresses input genome FASTA file
+  - gawk - Cleans genome FASTA headers
+  - cat - Merges FASTQ files of re-sequenced samples based on samplesheet ID values
 
-<details markdown="1">
-<summary>Output files</summary>
+### 2. Read QC and trimming - Quality control and trimming of raw reads
+  - FastQC (raw) - Raw read QC
+  - TrimGalore! - Adapter and quality trimming
+  - FastQC (trimmed) - Trimmed read QC
+  - TrimGalore! (hard-trimming) - Hard trim reads to a fixed length
+  - FastQC (hardtrimmed) - Hard trimmed read QC
 
-- `fastqc/`
-  - `*_fastqc.html`: FastQC report containing quality metrics.
-  - `*_fastqc.zip`: Zip archive containing the FastQC report, tab-delimited data file and plot images.
+### 3. Read alignment - Alignment of reads to the genome
+  - STAR/genomeGenerate - Indexes genome for alignment
+  - STAR/align - Aligns reads to the genome
+  - picard/CollectAlignmentSummaryMetrics - Collects alignment summary metrics
 
-</details>
+### 4. Genome QC
 
-[FastQC](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/) gives general quality metrics about your sequenced reads. It provides information about the quality score distribution across your reads, per base sequence content (%A/T/G/C), adapter contamination and overrepresented sequences. For further reading and documentation see the [FastQC help pages](http://www.bioinformatics.babraham.ac.uk/projects/fastqc/Help/).
+- BUSCO (genome) - BUSCO completeness assessment of the genome assembly
 
-![MultiQC - FastQC sequence counts plot](images/mqc_fastqc_counts.png)
+### 5. Repeat masking - Repeat masking of the genome assembly
+  - RepeatModeler - _De novo_ repeat identification
+  - RepeatMasker - Repeat masking of the genome assembly
 
-![MultiQC - FastQC mean quality scores plot](images/mqc_fastqc_quality.png)
+### 6. Genome annotation - Genome annotation and QC
+- BRAKER - Genome annotation using BRAKER, using the aligned reads as input
+- BUSCO (annotation) - BUSCO completeness assessment of the genome annotation
+- AGAT (spstatistics) - Calculates statistics for the genome annotation
 
-![MultiQC - FastQC adapter content plot](images/mqc_fastqc_adapter.png)
+### 7. Output reporting - Output processing and reporting
+- MultiQC - Aggregate report describing results and QC from the whole pipeline
+- Pipeline information - Report metrics generated during the workflow execution, including software versions
 
-> **NB:** The FastQC plots displayed in the MultiQC report shows _untrimmed_ reads. They may contain adapter sequence and potentially regions with low quality.
+## Output files
+
+The directories listed below will be created in the directory specified with `--outdir <OUTDIR>` after the pipeline has finished. All paths are relative to the top-level results directory, with `<ASSEMBLY_NAME>` being the name of given with `--assembly_name <ASSEMBLY_NAME>`.
+
+```
+<OUTPUTDIR>
+├── agat-spstatistics/
+│   └── <ASSEMBLY_NAME>.stats.txt
+├── braker/
+│   └── <ASSEMBLY_NAME>/
+│       ├── braker.aa
+│       ├── braker.codingseq
+│       ├── braker.gff3
+│       ├── braker.gtf
+│       ├── braker.log
+│       ├── hintsfile.gff
+│       └── what-to-cite.txt
+├── busco/
+│   ├── annotation/
+│   │   └── <ASSEMBLY_NAME>/
+│   └── genome/
+│       └── <ASSEMBLY_NAME>>/
+├── fastqc/
+│   ├── hardtrim/
+│   │   ├── *_fastqc.html
+│   │   └── *_fastqc.zip
+│   ├── raw/
+│   │   ├── *_fastqc.html
+│   │   └── *_fastqc.zip
+│   └── trim/
+│   │   ├── *_fastqc.html
+│   │   └── *_fastqc.zip
+├── gawk-fastaheader/
+│    └── <ASSEMBLY_NAME>.clean.fna
+├── gunzip/
+│    └── <ASSEMBLY_NAME>.fna
+├── multiqc/
+│    ├── multiqc_data/
+│    ├── multiqc_plots/
+│    └── multiqc_report.html
+├── picard/
+│    └── alignment-metrics/
+│        └── <ASSEMBLY_NAME>.txt
+├── pipeline_info/
+│    ├── execution_report-*.html
+│    ├── execution_timeline-*.html
+│    ├── execution_trace-*.txt
+│    ├── pipeline_dag-*.html
+│    └── software_versions.yml
+├── repeatmasker/
+│   └── <ASSEMBLY_NAME>>
+│       ├── <ASSEMBLY_NAME>>.clean.fna.cat.gz
+│       ├── <ASSEMBLY_NAME>>.clean.fna.masked
+│       ├── <ASSEMBLY_NAME>>.clean.fna.out
+│       ├── <ASSEMBLY_NAME>>.clean.fna.out.gff
+│       └── <ASSEMBLY_NAME>>.clean.fna.tbl
+├── repeatmodeler/
+│    ├── <ASSEMBLY_NAME>-families.fa
+│    ├── <ASSEMBLY_NAME>-families.stk
+│    ├── <ASSEMBLY_NAME>-rmod.log
+│    └── RM_XXX.DATETIME/
+├── star/
+│   ├── alignment/
+│   │   ├── <ASSEMBLY_NAME>.Aligned.sortedByCoord.out.bam
+│   │   ├── <ASSEMBLY_NAME>.Log.final.out
+│   │   ├── <ASSEMBLY_NAME>.Log.out
+│   │   ├── <ASSEMBLY_NAME>.Log.progress.out
+│   │   └── <ASSEMBLY_NAME>.SJ.out.tab
+│   └── index/
+│       └── star/
+│           ├── chrLength.txt
+│           ├── chrNameLength.txt
+│           ├── chrName.txt
+│           ├── chrStart.txt
+│           ├── Genome
+│           ├── genomeParameters.txt
+│           ├── SA
+│           └── SAindex
+└── trimgalore
+    ├── hardtrim
+    │   └── *.fq.gz
+    └── trim
+        ├── *.fastq.gz_trimming_report.txt
+        └── *.fq.gz
+```
 
 ### MultiQC
 
-<details markdown="1">
-<summary>Output files</summary>
-
-- `multiqc/`
-  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
-  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
-  - `multiqc_plots/`: directory containing static images from the report in various formats.
-
-</details>
 
 [MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
 
@@ -60,8 +143,7 @@ Results generated by MultiQC collate pipeline QC from supported tools e.g. FastQ
 
 - `pipeline_info/`
   - Reports generated by Nextflow: `execution_report.html`, `execution_timeline.html`, `execution_trace.txt` and `pipeline_dag.dot`/`pipeline_dag.svg`.
-  - Reports generated by the pipeline: `pipeline_report.html`, `pipeline_report.txt` and `software_versions.yml`. The `pipeline_report*` files will only be present if the `--email` / `--email_on_fail` parameter's are used when running the pipeline.
-  - Reformatted samplesheet files used as input to the pipeline: `samplesheet.valid.csv`.
+  - Reports generated by the pipeline: `pipeline_report.html`, `pipeline_report.txt` and `software_versions.yml`. The `pipeline_report*` files will only be present if the `--email` / `--email_on_fail` parameters are used when running the pipeline.
 
 </details>
 

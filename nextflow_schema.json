@@ -10,7 +10,12 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "assembly", "assembly_name", "outdir"],
+            "required": [
+                "input",
+                "assembly",
+                "assembly_name",
+                "outdir"
+            ],
             "properties": {
                 "input": {
                     "type": "string",
@@ -29,13 +34,14 @@
                 },
                 "assembly_name": {
                     "type": "string",
-                    "fa_icon": "fas fa-file-signature"
+                    "fa_icon": "fas fa-file-signature",
+                    "description": "Name of the input assembly to be annotated."
                 },
-                "busco_dbs": {
+                "busco_lineages": {
                     "type": "string",
-                    "fa_icon": "fas fa-percent",
-                    "description": "Comma-delinated string list of lineages to be passed to the BUSCO command.",
-                    "default": "eukaryota_odb10"
+                    "default": "eukaryota_odb10",
+                    "description": "BUSCO lineage(s) to use for BUSCO analysis.",
+                    "help_text": "For multiple lineages, separate with commas (e.g. `--busco_lineages 'eukaryota_odb10,'mammalia_odb10''`)."
                 },
                 "outdir": {
                     "type": "string",
@@ -87,9 +93,15 @@
                     "fa_icon": "fas fa-address-book",
                     "description": "Extra arguments to pass to STAR genomeGenerate indexing command in addition to defaults defined by the pipeline."
                 },
+                "align_reads_together": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Align all reads together in a single command, result is a single BAM file rather than a BAM file per sample."
+                },
                 "extra_star_align_args": {
                     "type": "string",
-                    "fa_icon": "fas fa-align-center"
+                    "fa_icon": "fas fa-align-center",
+                    "description": "Extra arguments to pass to star alignment command in addition to defaults defined by the pipeline."
                 }
             },
             "fa_icon": "fas fa-star"
@@ -101,14 +113,62 @@
             "default": "",
             "properties": {
                 "extra_picard_alignment_metrics_args": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "Extra arguments to pass to picard CollectAlignmentSummaryMetrics command in addition to defaults defined by the pipeline."
+                }
+            }
+        },
+        "repeatmodeler_options": {
+            "title": "RepeatModeler options",
+            "type": "object",
+            "description": "Parameters for RepeatModeler commands.",
+            "default": "",
+            "properties": {
+                "repeatmodeler_engine": {
+                    "type": "string",
+                    "enum": [
+                        "abblast",
+                        "wublast",
+                        "ncbi"
+                    ],
+                    "description": "The search engine to use for RepeatModeler."
+                },
+                "extra_repeatmodeler_args": {
+                    "type": "string",
+                    "description": "Extra arguments to pass to the RepeatModeler command in addition to defaults defined by the pipeline."
+                }
+            }
+        },
+        "repeatmasker_options": {
+            "title": "RepeatMasker options",
+            "type": "object",
+            "description": "Parameters for RepeatMasker commands.",
+            "default": "",
+            "properties": {
+                "extra_repeatmasker_args": {
+                    "type": "string",
+                    "default": "None",
+                    "description": "Extra arguments to pass to the RepeatMasker command in addition to defaults defined by the pipeline."
+                }
+            }
+        },
+        "braker_options": {
+            "title": "BRAKER options",
+            "type": "object",
+            "description": "Parameters for BRAKER commands.",
+            "default": "",
+            "properties": {
+                "extra_braker_args": {
+                    "type": "string",
+                    "default": "None",
+                    "description": "Extra arguments to pass to the BRAKER command in addition to defaults defined by the pipeline."
                 }
             }
         },
         "pipeline_options": {
             "title": "Pipeline options",
             "type": "object",
-            "description": "Parameters used to control which parts of the pipeline are run.",
+            "description": "Parameters used to control which parts of the pipeline are run. Not recommended to change these unless you know what you're doing, chances are things will break.",
             "default": "",
             "properties": {
                 "skip_fastqc": {
@@ -127,24 +187,34 @@
                     "fa_icon": "fas fa-forward"
                 },
                 "skip_read_alignment": {
-                    "type": "string",
-                    "default": "False",
-                    "fa_icon": "fas fa-forward"
+                    "type": "boolean",
+                    "fa_icon": "fas fa-forward",
+                    "description": "Skip read alignment, BRAKER will use unaligned reads instead."
                 },
                 "skip_picard_alignment_metrics": {
-                    "type": "string",
-                    "default": "False",
-                    "fa_icon": "fas fa-forward"
+                    "type": "boolean",
+                    "fa_icon": "fas fa-forward",
+                    "description": "Skip Picard CollectAlignmentSummaryMetrics."
+                },
+                "skip_genome_masking": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-forward",
+                    "description": "Skip genome masking."
                 },
                 "skip_busco_genome": {
                     "type": "boolean",
-                    "description": "Skip BUSCO genome assessment.",
-                    "fa_icon": "fas fa-forward"
+                    "fa_icon": "fas fa-forward",
+                    "description": "Skip BUSCO genome assessment."
                 },
                 "skip_busco_annotation": {
                     "type": "boolean",
                     "description": "Skip BUSCO genome annotation assessment.",
                     "fa_icon": "fas fa-forward"
+                },
+                "skip_agat_stats": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-forward",
+                    "description": "Skip agat spstatistics."
                 }
             },
             "fa_icon": "fas fa-stream"
@@ -212,15 +282,6 @@
                     "hidden": true,
                     "help_text": "Use to set an upper-limit for the CPU requirement for each process. Should be an integer e.g. `--max_cpus 1`"
                 },
-                "max_memory": {
-                    "type": "string",
-                    "description": "Maximum amount of memory that can be requested for any single job.",
-                    "default": "128.GB",
-                    "fa_icon": "fas fa-memory",
-                    "pattern": "^\\d+(\\.\\d+)?\\.?\\s*(K|M|G|T)?B$",
-                    "hidden": true,
-                    "help_text": "Use to set an upper-limit for the memory requirement for each process. Should be a string in the format integer-unit e.g. `--max_memory '8.GB'`"
-                },
                 "max_time": {
                     "type": "string",
                     "description": "Maximum amount of time that can be requested for any single job.",
@@ -257,7 +318,14 @@
                     "description": "Method used to save pipeline results to output directory.",
                     "help_text": "The Nextflow `publishDir` option specifies which intermediate files should be saved to the output directory. This option tells the pipeline what method should be used to move these files. See [Nextflow docs](https://www.nextflow.io/docs/latest/process.html#publishdir) for details.",
                     "fa_icon": "fas fa-copy",
-                    "enum": ["symlink", "rellink", "link", "copy", "copyNoFollow", "move"],
+                    "enum": [
+                        "symlink",
+                        "rellink",
+                        "link",
+                        "copy",
+                        "copyNoFollow",
+                        "move"
+                    ],
                     "hidden": true
                 },
                 "email_on_fail": {
@@ -350,6 +418,15 @@
             "$ref": "#/definitions/picard_options"
         },
         {
+            "$ref": "#/definitions/repeatmodeler_options"
+        },
+        {
+            "$ref": "#/definitions/repeatmasker_options"
+        },
+        {
+            "$ref": "#/definitions/braker_options"
+        },
+        {
             "$ref": "#/definitions/pipeline_options"
         },
         {
@@ -361,11 +438,5 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ],
-    "properties": {
-        "align_reads_together": {
-            "type": "boolean",
-            "default": true
-        }
-    }
+    ]
 }

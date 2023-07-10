@@ -1,0 +1,47 @@
+name: repeatmodeler
+
+keywords:
+  - genome
+  - annotation
+  - repeats
+
+tools:
+  - repeatmodeler:
+      description: "RepeatModeler is a de-novo repeat family discovery tool.
+      homepage: "https://www.repeatmasker.org/RepeatModeler/"
+      documentation: "https://github.com/Dfam-consortium/RepeatModeler/blob/master/README.md"
+      tool_dev_url: "https://github.com/Dfam-consortium/RepeatModeler"
+      doi: "10.1073/pnas.1921046117"
+      licence: ["OSL-2.1"]
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [ id:'test', single_end:false ]
+  - fasta:
+      type: file
+      description: Genome assembly
+      pattern: "*.{fasta,fa,fas,faa,fna}"
+
+output:
+  - rm_db:
+        type: directory
+        description: Captures RepeatModeler species-specific database
+        pattern: "{prefix}*"
+  - rm_fasta:
+      type: file
+      description: Gene transfer format file as output by BRAKER3
+      pattern: "*.{*-families.fa}"
+  - rm_stk:
+      type: file
+      description: ""
+      pattern: "*.{stk}"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+
+authors:
+  - "@kherronism"

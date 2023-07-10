@@ -1,6 +1,4 @@
-# kherronism/rewarewaannotation: Usage
-
-> _Documentation of pipeline parameters is generated automatically from the pipeline schema and can no longer be found in markdown files._
+# Pipeline Usage
 
 ## Introduction
 
@@ -16,37 +14,34 @@ You will need to create a samplesheet with information about the samples you wou
 
 ### Multiple runs of the same sample
 
-The `sample` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:
+The `sample_id` identifiers have to be the same when you have re-sequenced the same sample more than once e.g. to increase sequencing depth. The pipeline will concatenate the raw reads before performing any downstream analysis. Below is an example for the same sample sequenced across 3 lanes:
 
 ```console
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
-CONTROL_REP1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
+sample_id,fastq_1,fastq_2
+AEG588A1_S1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+AEG588A1_S1,AEG588A1_S1_L003_R1_001.fastq.gz,AEG588A1_S1_L003_R2_001.fastq.gz
+AEG588A1_S1,AEG588A1_S1_L004_R1_001.fastq.gz,AEG588A1_S1_L004_R2_001.fastq.gz
 ```
 
 ### Full samplesheet
 
-The pipeline will auto-detect whether a sample is single- or paired-end using the information provided in the samplesheet. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
+The pipeline will only supports paired-end reads. The samplesheet can have as many columns as you desire, however, there is a strict requirement for the first 3 columns to match those defined in the table below.
 
-A final samplesheet file consisting of both single- and paired-end data may look something like the one below. This is for 6 samples, where `TREATMENT_REP3` has been sequenced twice.
+A final samplesheet file may look something like the one below. This is for 3 samples, where `SAMPLE_3` has been sequenced twice.
 
 ```console
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-CONTROL_REP2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
-CONTROL_REP3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz
-TREATMENT_REP1,AEG588A4_S4_L003_R1_001.fastq.gz,
-TREATMENT_REP2,AEG588A5_S5_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L003_R1_001.fastq.gz,
-TREATMENT_REP3,AEG588A6_S6_L004_R1_001.fastq.gz,
+sample_id,file_1,file_2
+AEG588A1_S1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
+AEG588A1_S2,AEG588A2_S2_L002_R1_001.fastq.gz,AEG588A2_S2_L002_R2_001.fastq.gz
+AEG588A1_S3,AEG588A3_S3_L002_R1_001.fastq.gz,AEG588A3_S3_L002_R2_001.fastq.gz
+AEG588A1_S3,AEG588A3_S3_L003_R1_001.fastq.gz,AEG588A3_S3_L003_R2_001.fastq.gz
 ```
 
-| Column    | Description                                                                                                                                                                            |
-| --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| Column      | Description                                                                                                                                                                            |
+|-------------| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample_id` | Custom sample name. This entry will be identical for multiple sequencing libraries/runs from the same sample. Spaces in sample names are automatically converted to underscores (`_`). |
+| `file_1`    | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `file_2`    | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -55,7 +50,12 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run kherronism/rewarewaannotation --input samplesheet.csv --outdir <OUTDIR> --genome GRCh37 -profile docker
+nextflow run kherronism/rewarewaannotation \
+   -profile docker \
+   --input samplesheet.csv \
+   --assembly <ASSEMBLY_FILE> \
+   --assembly_name <ASSEMBLY_NAME> \
+   --outdir <OUTDIR>
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -77,20 +77,23 @@ Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <
 > The above pipeline run specified with a params file in yaml format:
 
 ```bash
-nextflow run kherronism/rewarewaannotation -profile docker -params-file params.yaml
+nextflow run kherronism/rewarewaannotation \
+    -profile docker \
+    -params-file params.yaml
 ```
 
 with `params.yaml` containing:
 
 ```yaml
-input: './samplesheet.csv'
-outdir: './results/'
-genome: 'GRCh37'
-input: 'data'
+input: 'samplesheet.csv'
+outdir: 'results'
+assembly: 'genome.fna'
+assembly_name: 'genome'
+busco_lineages: 'eukaryota_odb10,embryophyta_odb10'
 <...>
 ```
 
-You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
+For a breakdown of all the possible parameters included in the pipeline, refer to the [parameters docs](docs/parameters.md).
 
 ### Updating the pipeline
 
@@ -132,8 +135,12 @@ They are loaded in sequence, so later profiles can overwrite earlier profiles.
 If `-profile` is not specified, the pipeline will run locally and expect all software to be installed and available on the `PATH`. This is _not_ recommended, since it can lead to different results on different machines dependent on the computer enviroment.
 
 - `test`
-  - A profile with a complete configuration for automated testing
-  - Includes links to test data so needs no other parameters
+  - A profile with a complete configuration for quick testing
+  - Includes links to minimal test data so needs no other parameters
+  - However, due this test is expected to fail at the BRAKER3 step due to the small dataset
+- `test_full`:
+  - A profile with complete configuration for complete testing
+  - Uses data found in the test-datasets directory so needs no other parameters
 - `docker`
   - A generic configuration profile to be used with [Docker](https://docker.com/)
 - `singularity`
@@ -175,9 +182,11 @@ To use a different container from the default container or conda environment spe
 
 ### Custom Tool Arguments
 
-A pipeline might not always support every possible argument or option of a particular tool used in pipeline. Fortunately, nf-core pipelines provide some freedom to users to insert additional parameters that the pipeline does not include by default.
+This pipeline might not support every possible argument or option of a particular tool used in pipeline. However, there are some parameters included that allow some freedom to users to insert additional parameters that the pipeline does not include by default.
 
-To learn how to provide additional arguments to a particular tool of the pipeline, please see the [customising tool arguments](https://nf-co.re/docs/usage/configuration#customising-tool-arguments) section of the nf-core website.
+These arguments are given in the format e.g. `--extra_toolname_args="--arg_name=arg_value"`. If several arguments are given, separate them using whitespace e.g. `--extra_trimagalore_args="--arg_name1=arg_value1 --arg_name2=arg_value2"`.
+
+For more information on the parameters included in the pipeline, refer to the [parameters docs](nf-rewarewaannotation/docs/parameters.md).
 
 ### nf-core/configs
 

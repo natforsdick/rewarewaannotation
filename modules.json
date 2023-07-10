@@ -7,12 +7,22 @@
                 "kherronism": {
                     "braker3": {
                         "branch": "master",
-                        "git_sha": "086b29c1364557456b7d86c3baee9780757cdebb",
+                        "git_sha": "31013af2a393df4f2db602f26833649af4ac2f98",
                         "installed_by": ["modules"]
                     },
                     "picard/collectalignmentsummarymetrics": {
                         "branch": "master",
-                        "git_sha": "086b29c1364557456b7d86c3baee9780757cdebb",
+                        "git_sha": "2555359b34b79ee068b0abf7d1da9b19b88ca522",
+                        "installed_by": ["modules"]
+                    },
+                    "repeatmasker": {
+                        "branch": "master",
+                        "git_sha": "62b5972290d9e7b93752aa25eb667ad24cfedec9",
+                        "installed_by": ["modules"]
+                    },
+                    "repeatmodeler": {
+                        "branch": "master",
+                        "git_sha": "f0b64af1ee3b4ae317a9e238f72f3f9302310d23",
                         "installed_by": ["modules"]
                     }
                 }
@@ -21,9 +31,20 @@
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
-                    "busco": {
+                    "agat/spstatistics": {
                         "branch": "master",
                         "git_sha": "911696ea0b62df80e900ef244d7867d177971f73",
+                        "installed_by": ["modules"]
+                    },
+                    "busco": {
+                        "branch": "master",
+                        "git_sha": "726ee59cd9360a965d96ea9ea8770f16b8ddd6cc",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/busco/busco.diff"
+                    },
+                    "cat/fastq": {
+                        "branch": "master",
+                        "git_sha": "5c460c5a4736974abde2843294f35307ee2b0e5e",
                         "installed_by": ["modules"]
                     },
                     "custom/dumpsoftwareversions": {
@@ -33,7 +54,17 @@
                     },
                     "fastqc": {
                         "branch": "master",
+                        "git_sha": "bd8092b67b5103bdd52e300f75889442275c3117",
+                        "installed_by": ["modules"]
+                    },
+                    "gawk": {
+                        "branch": "master",
                         "git_sha": "911696ea0b62df80e900ef244d7867d177971f73",
+                        "installed_by": ["modules"]
+                    },
+                    "gunzip": {
+                        "branch": "master",
+                        "git_sha": "e06548bfa36ee31869b81041879dd6b3a83b1d57",
                         "installed_by": ["modules"]
                     },
                     "multiqc": {
@@ -41,16 +72,6 @@
                         "git_sha": "911696ea0b62df80e900ef244d7867d177971f73",
                         "installed_by": ["modules"],
                         "patch": "modules/nf-core/multiqc/multiqc.diff"
-                    },
-                    "samtools/merge": {
-                        "branch": "master",
-                        "git_sha": "0460d316170f75f323111b4a2c0a2989f0c32013",
-                        "installed_by": ["modules"]
-                    },
-                    "samtools/stats": {
-                        "branch": "master",
-                        "git_sha": "735e1e04e7e01751d2d6e97055bbdb6f70683cc1",
-                        "installed_by": ["modules"]
                     },
                     "star/align": {
                         "branch": "master",

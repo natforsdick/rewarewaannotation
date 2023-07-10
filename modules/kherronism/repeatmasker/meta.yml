@@ -1,0 +1,46 @@
+name: repeatmasker
+description: |
+  Screening DNA sequences for interspersed repeats and low complexity DNA sequences.
+
+keywords:
+  - genome
+  - annotation
+  - repeats
+
+tools:
+  - repeatmasker:
+      description: "RepeatMasker is a program that screens DNA sequences for interspersed
+      repeats and low complexity DNA sequences."
+      homepage: "https://www.repeatmasker.org/"
+      documentation: "https://www.repeatmasker.org/webrepeatmaskerhelp.html"
+      tool_dev_url: "https://github.com/rmhubley/RepeatMasker"
+      doi: "10.1073/pnas.1921046117"
+      licence: ["Open Software License v. 2.1"]
+
+input:
+  - meta:
+      type: map
+      description: |
+        Groovy Map containing sample information
+        e.g. [ id:'test', single_end:false ]
+  - fasta:
+      type: file
+      description: Genome assembly
+      pattern: "*.{fasta,fa,fas,faa,fna}"
+
+output:
+  - rm_fasta:
+      type: file
+      description: Gene transfer format file as output by BRAKER3
+      pattern: "*.{-families.fa}"
+  - rm_stk:
+      type:
+      description: ""
+      pattern: "*.{stk}"
+  - versions:
+      type: file
+      description: File containing software versions
+      pattern: "versions.yml"
+
+authors:
+  - "@kherronism"

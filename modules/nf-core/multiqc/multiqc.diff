@@ -1,7 +1,7 @@
 Changes in module 'nf-core/multiqc'
 --- modules/nf-core/multiqc/main.nf
 +++ modules/nf-core/multiqc/main.nf
-@@ -7,10 +7,17 @@
+@@ -7,10 +7,21 @@
          'biocontainers/multiqc:1.14--pyhdfd78af_0' }"
  
      input:
@@ -16,10 +16,14 @@ Changes in module 'nf-core/multiqc'
 +    path methods_description
 +    path multiqc_logo
 +    path ('fastqc/raw/*')
++    path ('trimgalore/trim/*')
 +    path ('fastqc/trim/*')
-+    path ('trim_log/*')
++    path ('trimgalore/hardtrim/*')
++    path ('fastqc/hardtrim/*')
 +    path ('star/*')
 +    path ('picard_alignment_metrics/*')
++    path ('busco/genome/*')
++    path ('busco/annotation/*')
  
      output:
      path "*multiqc_report.html", emit: report

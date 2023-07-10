@@ -17,9 +17,6 @@
 - [STAR](https://github.com/alexdobin/STAR)
   > Dobin A, Davis CA, Schlesinger F, Drenkow J, Zaleski C, Jha S, Batut P, Chaisson M, Gingeras TR. STAR: ultrafast universal RNA-seq aligner Bioinformatics. 2013 Jan 1;29(1):15-21. doi: 10.1093/bioinformatics/bts635. Epub 2012 Oct 25. PubMed PMID: 23104886; PubMed Central PMCID: PMC3530905.
 
-- [SAMtools](https://sourceforge.net/projects/samtools/files/samtools/)
-  > Li H, Handsaker B, Wysoker A, Fennell T, Ruan J, Homer N, Marth G, Abecasis G, Durbin R; 1000 Genome Project Data Processing Subgroup. The Sequence Alignment/Map format and SAMtools. Bioinformatics. 2009 Aug 15;25(16):2078-9. doi: 10.1093/bioinformatics/btp352. Epub 2009 Jun 8. PubMed PMID: 19505943; PubMed Central PMCID: PMC2723002.
-
 - [picard-tools](https://broadinstitute.github.io/picard/)
 
 - [RepeatModeler](https://www.repeatmasker.org/RepeatModeler/)
@@ -28,7 +25,7 @@
 - [RepeatMasker](https://www.repeatmasker.org/)
   > Smit AFA, Hubley R and Green P. RepeatMasker Open-4.0. 2013-2015 http://www.repeatmasker.org.
 
-- [BRAKER3](https://github.com/Gaius-Augustus/BRAKER) (See [here](https://github.com/Gaius-Augustus/BRAKER#citing-braker-and-software-called-by-braker) for more information on which tools to cite)
+- [BRAKER3](https://github.com/Gaius-Augustus/BRAKER) (For more information on what tools to cite, see [here](https://github.com/Gaius-Augustus/BRAKER#citing-braker-and-software-called-by-braker) and the `braker/what-to-cite.txt` file in the pipeline output folder)
   > Bruna, T., Hoff, K.J., Lomsadze, A., Stanke, M., & Borodovsky, M. (2021). BRAKER2: Automatic Eukaryotic Genome Annotation with GeneMark-EP+ and AUGUSTUS Supported by a Protein Database. NAR Genomics and Bioinformatics 3(1):lqaa108, doi: 10.1093/nargab/lqaa108.
 
   > Hoff, K.J., Lomsadze, A., Borodovsky, M. and Stanke, M. (2019). Whole-Genome Annotation with BRAKER. Methods Mol Biol. 1962:65-95, doi: 10.1007/978-1-4939-9173-0_5.

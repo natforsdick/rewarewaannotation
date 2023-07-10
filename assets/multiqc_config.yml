@@ -20,6 +20,7 @@ run_modules:
   - cutadapt
   - star
   - picard
+  - busco
 
 module_order:
   - fastqc:
@@ -41,9 +42,17 @@ module_order:
       path_filters:
           "./trimgalore/hardtrim/*.txt"
   - fastqc:
-        name: "FastQC (hard-trimmed)"
-        info: "This section of the report shows FastQC results after adapter trimming."
-        path_filters:
-          - "./fastqc/hardtrim/*.zip"
+      name: "FastQC (hard-trimmed)"
+      info: "This section of the report shows FastQC results after adapter trimming."
+      path_filters:
+        - "./fastqc/hardtrim/*.zip"
   - star
   - picard
+  - busco:
+      name: "BUSCO (genome)"
+      path_filters:
+        - "./busco/genome/*.txt"
+  - busco:
+      name: "BUSCO (annotation)"
+      path_filters:
+        - "./busco/annotation/*.txt"

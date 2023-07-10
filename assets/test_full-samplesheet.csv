@@ -1,0 +1,3 @@
+sample_id,file1,file2
+ERR9435031,test-datasets/araThal/ERR9435031_1.fastq.gz,test-datasets/araThal/ERR9435031_2.fastq.gz
+SRR6066069,test-datasets/araThal/SRR6066069_1.fastq.gz,test-datasets/araThal/SRR6066069_2.fastq.gz

@@ -9,18 +9,28 @@ workflow FASTA_REPEATMASKING_REPEATMODELER_REPEATMASKER {
     main:
     ch_versions = Channel.empty()
 
-    REPEATMODELER ( )
+    rm_db = Channel.empty()
+    rm_log = Channel.empty()
+    REPEATMODELER (
+        ch_fasta
+    )
+    rm_families = REPEATMODELER.out.rm_families_fa
+    rm_log      = REPEATMODELER.out.log
     ch_versions = ch_versions.mix(REPEATMODELER.out.versions)
 
-    REPEATMASKER ()
+    fasta_mask = Channel.empty()
+    REPEATMASKER (
+        ch_fasta,
+        rm_families
+    )
+    fasta_masked = REPEATMASKER.out.fasta_masked
     ch_versions = ch_versions.mix(REPEATMASKER.out.versions)
 
     emit:
-    // TODO nf-core: edit emitted channels
-    bam      = SAMTOOLS_SORT.out.bam           // channel: [ val(meta), [ bam ] ]
-    bai      = SAMTOOLS_INDEX.out.bai          // channel: [ val(meta), [ bai ] ]
-    csi      = SAMTOOLS_INDEX.out.csi          // channel: [ val(meta), [ csi ] ]
+    rm_families
+    rm_log
+    fasta_masked
 
-    versions = ch_versions                     // channel: [ versions.yml ]
+    versions = ch_versions
 }
 

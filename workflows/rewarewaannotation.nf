@@ -50,8 +50,8 @@ ch_multiqc_custom_methods_description = params.multiqc_methods_description ? fil
 // SUBWORKFLOW: Consisting of a mix of local, kherronism/nf-modules and nf-core/modules
 //
 include { FASTQ_QC_ALIGN_STATS              } from '../subworkflows/local/fastq_qc_align_stats/main'
-//include { FASTA_QC_MASKING                  } from '../subworkflows/local/fasta_qc_masking/main'
-//include { FASTA_ANNOTATION_QC_BRAKER3_BUSCO } from '../subworkflows/local/genome_annotation/main'
+include { FASTA_QC_MASKING                  } from '../subworkflows/local/fasta_qc_masking/main'
+include { FASTA_ANNOTATION_QC_BRAKER3_BUSCO } from '../subworkflows/local/fasta_annotation_qc_braker3_busco/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -62,6 +62,9 @@ include { FASTQ_QC_ALIGN_STATS              } from '../subworkflows/local/fastq_
 //
 // MODULE: Installed directly from nf-core/modules
 //
+include { CAT_FASTQ                   } from '../modules/nf-core/cat/fastq/main'
+include { GUNZIP                      } from '../modules/nf-core/gunzip/main'
+include { GAWK as GAWK_FASTAHEADER    } from '../modules/nf-core/gawk/main'
 include { MULTIQC                     } from '../modules/nf-core/multiqc/main'
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
 
@@ -77,14 +80,56 @@ def multiqc_report = []
 workflow REWAREWAANNOTATION {
 
     ch_versions = Channel.empty()
-    //
-    // Create input channel from input file provided through params.input
-    //
-    ch_reads = Channel.fromPath(params.input)
-        | splitCsv( header: true, quote: '\"' )
-        | map { row -> [[id: row.sample_id, single_end: false], [file(row.file1), file(row.file2)]] }
 
-    ch_assembly = Channel.value([[id: params.assembly_name], file(params.assembly)])
+    //
+    // Create input channel from input samplesheet and provided params
+    //
+    ch_fastq = Channel.fromPath(params.input)
+        .splitCsv( header: true, quote: '\"' )
+        .map { row -> [[id: row.sample_id, single_end: false], [file(row.file1), file(row.file2)]] }
+        .groupTuple()
+        .branch { meta, fastq ->
+            single  : fastq.size() == 1
+                return [ meta, fastq.flatten() ]
+            multiple: fastq.size() > 1
+                return [ meta, fastq.flatten() ]
+        }
+
+    //
+    // MODULE: Concatenate FastQ files from same sample if required
+    //
+    CAT_FASTQ (
+        ch_fastq.multiple
+    )
+    .reads
+    .mix(ch_fastq.single)
+    .set { ch_reads }
+    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first().ifEmpty(null))
+
+    //
+    // MODULE: Uncompress genome fasta if required
+    //
+    if (params.assembly.endsWith(".gz")) {
+        ch_assembly = GUNZIP ( [ [id: params.assembly_name ], file(params.assembly) ] ).gunzip
+        ch_versions = ch_versions.mix(GUNZIP.out.versions)
+    } else {
+        ch_assembly = Channel.value( [[id: params.assembly_name], file(params.assembly)] )
+    }
+
+    //
+    // MODULE: Select only the first column in the genome fasta header.
+    //
+    GAWK_FASTAHEADER (
+        ch_assembly,
+        []
+    )
+    ch_assembly_clean_header = GAWK_FASTAHEADER.out.output
+    ch_versions              = ch_versions.mix(GAWK_FASTAHEADER.out.versions)
+
+    //
+    // Create lineages channel for multiple busco runs
+    //
+    ch_lineages = Channel.of(params.busco_lineages.split(',')).map{ it.trim() }
 
     //
     // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
@@ -92,7 +137,7 @@ workflow REWAREWAANNOTATION {
     skip_hard_trimming = (params.extra_trimgalore_hardtrim_args == null) ? true : params.skip_hard_trimming
     FASTQ_QC_ALIGN_STATS (
         ch_reads,
-        ch_assembly,
+        ch_assembly_clean_header,
         params.align_reads_together,
         params.skip_fastqc,
         params.skip_trimming,
@@ -103,15 +148,30 @@ workflow REWAREWAANNOTATION {
     ch_versions = ch_versions.mix(FASTQ_QC_ALIGN_STATS.out.versions)
 
     //
-    // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
+    // SUBWORKFLOW: Genome BUSCO QC and genome masking with RepeatModeler and RepeatMasker
     //
-    // FASTA_QC_MASKING()
+    FASTA_QC_MASKING(
+        ch_assembly_clean_header,
+        ch_lineages,
+        params.skip_busco_genome,
+        params.skip_genome_masking
+    )
+    ch_versions = ch_versions.mix(FASTA_QC_MASKING.out.versions)
 
     //
-    // SUBWORKFLOW: Read QC and trim adapters with TrimGalore!
+    // SUBWORKFLOW: Genome annotation with BRAKER3 and annotation QC with BUSCO
     //
-    // FASTA_ANNOTATION_QC_BRAKER3_BUSCO ()
+    FASTA_ANNOTATION_QC_BRAKER3_BUSCO (
+        FASTA_QC_MASKING.out.fasta_masked,
+        FASTQ_QC_ALIGN_STATS.out.bam_sorted.collect(),
+        ch_lineages,
+        params.skip_busco_annotation,
+        params.skip_agat_stats
+    )
 
+    //
+    // Module: DumpSoftwareVersions
+    //
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
@@ -138,7 +198,9 @@ workflow REWAREWAANNOTATION {
         FASTQ_QC_ALIGN_STATS.out.hardtrim_log.collect{it[1]}.ifEmpty([]),
         FASTQ_QC_ALIGN_STATS.out.hardtrim_fastqc_zip.collect{it[1]}.ifEmpty([]),
         FASTQ_QC_ALIGN_STATS.out.star_align_log_final.collect{it[1]}.ifEmpty([]),
-        FASTQ_QC_ALIGN_STATS.out.metrics.collect{it[1]}.ifEmpty([])
+        FASTQ_QC_ALIGN_STATS.out.metrics.collect{it[1]}.ifEmpty([]),
+        FASTA_QC_MASKING.out.busco_genome_short_summaries_txt.collect{it[1]}.ifEmpty([]),
+        FASTA_ANNOTATION_QC_BRAKER3_BUSCO.out.busco_annotation_short_summaries_txt.collect{it[1]}.ifEmpty([])
     )
     multiqc_report = MULTIQC.out.report.toList()
 }
