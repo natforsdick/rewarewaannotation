@@ -19,6 +19,6 @@ conda activate nextflow
 
 nextflow run kherronism/rewarewaannotation \
    -params-file rewarewa_params.yml \
-   -c sonic.config \
+   -profile sonic \
    -resume
 
