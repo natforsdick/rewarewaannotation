@@ -106,7 +106,7 @@ nextflow run kherronism/rewarewaannotation \
    --outdir <OUTDIR>
 ```
 
-However, we want to make use of the SLURM scheduler and allow NextFlow to make it's own arrays to handle the various pipeline steps. 
+However, we want to make use of the SLURM scheduler and allow NextFlow to make its own arrays to handle the various pipeline steps. 
 
 ### Running on SLURM
 
