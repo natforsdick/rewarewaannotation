@@ -32,14 +32,24 @@ Default steps in the pipeline:
 ### Preparing to run on NeSI
 
 1. Make a new directory for your annotation workflow. `git clone` this repo. Then make a directory for the annotation output.
-2. Install NextFlow locally on NeSI as per the [Introduction to Nextflow workshop](https://genomicsaotearoa.github.io/Nextflow_Workshop/session_1/1_introduction/#nextflow-cli) (see 'How to install Nextflow locally'). You may need to load Java:
+   
+3. Install NextFlow locally on NeSI as per the [Introduction to Nextflow workshop](https://genomicsaotearoa.github.io/Nextflow_Workshop/session_1/1_introduction/#nextflow-cli) (see 'How to install Nextflow locally'). You may need to load Java:
+   
    `module load Java/11.0.4`
-3. Once you have moved NextFlow to your `$HOME/bin`, check whether it can be found:
+   
+4. Once you have moved NextFlow to your `$HOME/bin`, check whether it can be found:
+   
    `nextflow -version`
+   
    If it doesn't return NextFlow version information, you will need to export bin to path:
+   
    `export PATH="$HOME/bin:$PATH"`
-4. Set up the rest of the environment ready to run the test config. We are running this pipeline with Singularity - please ignore the message regarding it being deprecated on NeSI.
+   
+6. Set up the rest of the environment ready to run the test config. We are running this pipeline with Singularity - please ignore the message regarding it being deprecated on NeSI.
+   
    We will need to set up cache and temporary directories, and run `setfacl -b` commands to bypass NeSI security access control on `nobackup` to allow `pull` from online repos.
+   
+   ```bash
    module load Singularity/3.11.3
    mkdir {/path/to/cachedir,/path/to/tmpdir}
    CACHEDIR=/path/to/cachedir
@@ -48,10 +58,15 @@ Default steps in the pipeline:
    export SINGULARITY_TMPDIR=$SINGULARITY_TMPDIR
    setfacl -b "${NXF_SINGULARITY_CACHEDIR}" /path/to/rewarewaannotation/main.nf
    setfacl -b "${SINGULARITY_TMPDIR}" /path/to/rewarewaannotation/main.nf
-5. Test your setup.
+   ```
+   
+8. Test your setup.
    Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data. **Note**: The nextflow process will also make a `.nextflow.log` file, but if you don't rename it, it will be overwritten.
+   
    `nextflow run /path/to/rewarewaannotation/ -profile test,singularity --outdir results &> anno-test.log`
+   
    You can test resuming the pipeline using `-resume`. Once you have run the test, I recommend cleaning out the singularity cache prior to starting a run with real data.
+   
    `singularity cache clean`
 
 ### Setting up to run for your data on NeSI via SLURM
@@ -70,6 +85,14 @@ SAMPLE_2,SAMPLE_2_R1.fastq.gz,SAMPLE_2_R2.fastq.gz,
 ```
 
 Prepare a `params.yml` file for your input data: [`rewarewa_params.yml`](test-datasets/kniExce/rewarewa_params.yml)
+
+```yml
+input                         : 'samplesheet.csv'
+outdir                        : 'results'
+assembly                      : '<ASSEMBLY_FASTA_PATH>'
+assembly_name                 : 'asmName'
+busco_lineages                : 'eukaryota_odb10,embryophyta_odb10'
+```
 
 Each row represents a pair of fastq files (paired end). This pipeline only accepts paired-end reads. Input files can be compressed or uncompressed. Re-sequenced samples will be merged into a single fastq file at the start of the pipeline.
 
