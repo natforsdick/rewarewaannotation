@@ -135,9 +135,9 @@ Also included in [`test-datasets/kniExce`](test-datasets/kniExce) are a few help
 
 ## Credits
 
-Pipeline originally written and implemented by Ann McCartney and ported to Nextflow by Katie Herron.
+Pipeline originally written and implemented by Ann McCartney and ported to Nextflow by [Katie Herron](https://github.com/kherronism).
 
-Modifications for use on NeSI by Nat Forsdick, Dinindu Senanayake, and Chris Hakkaart.
+Modifications for use on NeSI by [Nat Forsdick](https://github.com/natforsdick), [Dinindu Senanayake](https://github.com/DininduSenanayake), and [Chris Hakkaart](https://github.com/christopher-hakkaart).
 
 ## Citations
 
