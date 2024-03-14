@@ -5,7 +5,7 @@
 
 ## Introduction
 
-**kherronism/rewarewaannotation** is a bioinformatics pipeline built in Nextflow, originally developed for the annotation of the rewarewa (Knightia excelsa) genome. The pipeline takes paired-end RNA-seq reads as input and conducts QC, trimming and alignment. The target genome is repeat masked prior to both the genome and RNA-seq evidence being given as input to BRAKER3.
+**rewarewaannotation** is a bioinformatics pipeline built by Ann McArtney and ported into Nextflow by Katie Herron, originally developed for the annotation of the rewarewa (*Knightia excelsa*) genome. The pipeline takes paired-end RNA-seq reads and a genome assembly as input and conducts QC, trimming and alignment. The target genome is repeat masked prior to both the genome and RNA-seq evidence being given as input to BRAKER3.
 
 Default steps in the pipeline:
 1. Merge re-sequenced FastQ files ([`cat`](http://www.linfo.org/cat.html))
@@ -27,16 +27,38 @@ Default steps in the pipeline:
 
 ## Usage
 
-> **Note**
-> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how
-> to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline)
-> with `-profile test` before running the workflow on actual data.
-
 **Pipeline usage is covered more comprehensively on [this page](docs/usage.md)**.
+
+### Preparing to run on NeSI
+
+1. Make a new directory for your annotation workflow. `git clone` this repo. Then make a directory for the annotation output.
+2. Install NextFlow locally on NeSI as per the [Introduction to Nextflow workshop](https://genomicsaotearoa.github.io/Nextflow_Workshop/session_1/1_introduction/#nextflow-cli) (see 'How to install Nextflow locally'). You may need to load Java:
+   `module load Java/11.0.4`
+3. Once you have moved NextFlow to your `$HOME/bin`, check whether it can be found:
+   `nextflow -version`
+   If it doesn't return NextFlow version information, you will need to export bin to path:
+   `export PATH="$HOME/bin:$PATH"`
+4. Set up the rest of the environment ready to run the test config. We are running this pipeline with Singularity - please ignore the message regarding it being deprecated on NeSI.
+   We will need to set up cache and temporary directories, and run `setfacl -b` commands to bypass NeSI security access control on `nobackup` to allow `pull` from online repos.
+   module load Singularity/3.11.3
+   mkdir {/path/to/cachedir,/path/to/tmpdir}
+   CACHEDIR=/path/to/cachedir
+   export NXF_SINGULARITY_CACHEDIR=$CACHEDIR
+   SINGULARITY_TMPDIR=/path/to/tmpdir
+   export SINGULARITY_TMPDIR=$SINGULARITY_TMPDIR
+   setfacl -b "${NXF_SINGULARITY_CACHEDIR}" /path/to/rewarewaannotation/main.nf
+   setfacl -b "${SINGULARITY_TMPDIR}" /path/to/rewarewaannotation/main.nf
+5. Test your setup.
+   Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data. **Note**: The nextflow process will also make a `.nextflow.log` file, but if you don't rename it, it will be overwritten.
+   `nextflow run /path/to/rewarewaannotation/ -profile test,singularity --outdir results &> anno-test.log`
+   You can test resuming the pipeline using `-resume`. Once you have run the test, I recommend cleaning out the singularity cache prior to starting a run with real data.
+   `singularity cache clean`
+
+### Setting up to run for your data on NeSI via SLURM
 
 In brief:
 
-Prepare a samplesheet with your input data that looks as follows:
+Prepare a samplesheet with your RNA-seq input data that looks as follows:
 
 `samplesheet.csv`:
 
@@ -47,9 +69,11 @@ SAMPLE_2,SAMPLE_2_R1.fastq.gz,SAMPLE_2_R2.fastq.gz,
 <...>
 ```
 
+Prepare a `params.yml` file for your input data: [`rewarewa_params.yml`](test-datasets/kniExce/rewarewa_params.yml)
+
 Each row represents a pair of fastq files (paired end). This pipeline only accepts paired-end reads. Input files can be compressed or uncompressed. Re-sequenced samples will be merged into a single fastq file at the start of the pipeline.
 
-Now, you can run the pipeline using:
+Now, you can run the pipeline on the command line using:
 ```bash
 nextflow run kherronism/rewarewaannotation \
    -profile <docker/singularity/.../institute> \
@@ -59,19 +83,13 @@ nextflow run kherronism/rewarewaannotation \
    --outdir <OUTDIR>
 ```
 
-You can also `git clone` this repository and then run the pipeline locally:
-```bash
-nextflow run main.nf \
-   -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
-   --assembly <ASSEMBLY_FILE> \
-   --assembly_name <ASSEMBLY_NAME> \
-   --outdir <OUTDIR>
-```
+However, we want to make use of the SLURM scheduler and allow NextFlow to make it's own arrays to handle the various pipeline steps. 
+
+### Running on SLURM
+
+Along with making your samplesheet, you will need a SLURM script like this example: [`NeSI_slurm.sh`](test-datasets/kniExce/NeSI_slurm.sh). We have modified the [`sonic.config`](test-datasets/kniExce/sonic.config) to run on NeSI. 
 
 **For a full breakdown of available params for the pipeline see [this page](docs/parameters.md).**
-
-To resume a run, add the [`-resume`](https://nf-co.re/usage/running#resume-a-pipeline) flag and Nextflow will take care of the rest.
 
 To re-run the pipeline with the parameters used for _rewarewa_ (example samplesheet.csv and params file given in [`test-datasets/kniExce`](test-datasets/kniExce) folder):
 ```bash
@@ -95,6 +113,8 @@ Also included in [`test-datasets/kniExce`](test-datasets/kniExce) are a few help
 ## Credits
 
 Pipeline originally written and implemented by Ann McCartney and ported to Nextflow by Katie Herron.
+
+Modifications for use on NeSI by Nat Forsdick, Dinindu Senanayake, and Chris Hakkaart.
 
 ## Citations
 
