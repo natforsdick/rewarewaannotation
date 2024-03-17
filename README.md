@@ -44,6 +44,8 @@ Default steps in the pipeline:
    If it doesn't return NextFlow version information, you will need to export bin to path:
    
    `export PATH="$HOME/bin:$PATH"`
+
+   It's probably a good idea to add this to your `~/.bashrc`.
    
 6. Set up the rest of the environment ready to run the test config. We are running this pipeline with Singularity - please ignore the message regarding it being deprecated on NeSI.
    
@@ -61,7 +63,8 @@ Default steps in the pipeline:
    ```
    
 8. Test your setup.
-   Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data. **Note**: The nextflow process will also make a `.nextflow.log` file, but if you don't rename it, it will be overwritten.
+   
+   Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data. **Note**: The nextflow process will also make a `.nextflow.log` file which is more detailed than your `anno-test.log`, but if you don't rename it, it will be overwritten.
    
    `nextflow run /path/to/rewarewaannotation/ -profile test,singularity --outdir results &> anno-test.log`
    
