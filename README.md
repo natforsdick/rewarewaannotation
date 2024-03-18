@@ -49,15 +49,26 @@ Default steps in the pipeline:
    
 6. Set up the rest of the environment ready to run the test config. We are running this pipeline with Singularity - please ignore the message regarding it being deprecated on NeSI.
    
-   We will need to set up cache and temporary directories, and run `setfacl -b` commands to bypass NeSI security access control on `nobackup` to allow `pull` from online repos.
+   We will need to set up cache and temporary directories (e.g., `/nesi/nobackup/landcare03691/singularity-cache`, `/nesi/nobackup/landcare03691/tmp-anno`, and run `setfacl -b` commands to bypass NeSI security access control on `nobackup` to allow `pull` from online repos. 
    
+   For repeat usage, we recommend adding the following to your `~/.bashrc`:
+
+  ```bash
+  ## NextFlow set up for annotation pipeline
+  export PATH="${HOME}/bin:$PATH"
+  export NXF_TEMP=/path/to/tmp-anno
+  export NXF_HOME=~/.nextflow
+  export NXF_SINGULARITY_CACHEDIR=/path/to/singularity-cache
+  export SINGULARITY_CACHEDIR=/path/to/singularity-cache
+  export SINGULARITY_TMPDIR=/path/to/tmp-anno
+  ```
+
+  Then prior to running the pipeline, you only need to do the following:
+
    ```bash
+   module load Java/11.0.4
+   nextflow -version
    module load Singularity/3.11.3
-   mkdir {/path/to/cachedir,/path/to/tmpdir}
-   CACHEDIR=/path/to/cachedir
-   export NXF_SINGULARITY_CACHEDIR=$CACHEDIR
-   SINGULARITY_TMPDIR=/path/to/tmpdir
-   export SINGULARITY_TMPDIR=$SINGULARITY_TMPDIR
    setfacl -b "${NXF_SINGULARITY_CACHEDIR}" /path/to/rewarewaannotation/main.nf
    setfacl -b "${SINGULARITY_TMPDIR}" /path/to/rewarewaannotation/main.nf
    ```
