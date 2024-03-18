@@ -67,6 +67,8 @@ Default steps in the pipeline:
    Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data. **Note**: The nextflow process will also make a `.nextflow.log` file which is more detailed than your `anno-test.log`, but if you don't rename it, it will be overwritten.
    
    `nextflow run /path/to/rewarewaannotation/ -profile test,singularity --outdir results &> anno-test.log`
+
+  The test should complete, logging one error, which will be a result of the test dataset being too small to run Braker3 - this is an expected error! If there are no other errors or warnings, you should be good to go.
    
    You can test resuming the pipeline using `-resume`. Once you have run the test, I recommend cleaning out the singularity cache prior to starting a run with real data.
    
