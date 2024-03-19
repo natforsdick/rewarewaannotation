@@ -84,16 +84,24 @@ workflow REWAREWAANNOTATION {
     //
     // Create input channel from input samplesheet and provided params
     //
-    ch_fastq = Channel.fromPath(params.input)
-        .splitCsv( header: true, quote: '\"' )
-        .map { row -> [[id: row.sample_id, single_end: false], [file(row.file1), file(row.file2)]] }
-        .groupTuple()
-        .branch { meta, fastq ->
-            single  : fastq.size() == 1
-                return [ meta, fastq.flatten() ]
-            multiple: fastq.size() > 1
-                return [ meta, fastq.flatten() ]
+    Channel
+        .fromSamplesheet("input")
+        .map {
+            meta, fastq_1, fastq_2 ->
+                if (!fastq_2) {
+                    return [ meta + [ single_end:true ], [ fastq_1 ] ]
+                } else {
+                    return [ meta + [ single_end:false ], [ fastq_1, fastq_2 ] ]
+                }
         }
+        .branch {
+            meta, fastqs ->
+                single  : fastqs.size() == 1
+                    return [ meta, fastqs.flatten() ]
+                multiple: fastqs.size() > 1
+                    return [ meta, fastqs.flatten() ]
+        }
+        .set { ch_fastq }
 
     //
     // MODULE: Concatenate FastQ files from same sample if required
