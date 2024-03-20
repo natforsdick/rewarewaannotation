@@ -1,6 +1,7 @@
 {
     "name": "kherronism/rewarewaannotation",
     "homePage": "https://github.com/kherronism/rewarewaannotation",
+    "repos": {
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {
@@ -12,8 +13,7 @@
                     "busco": {
                         "branch": "master",
                         "git_sha": "726ee59cd9360a965d96ea9ea8770f16b8ddd6cc",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/busco/busco.diff"
+                        "installed_by": ["modules"]
                     },
                     "cat/fastq": {
                         "branch": "master",
@@ -27,7 +27,7 @@
                     },
                     "fastqc": {
                         "branch": "master",
-                        "git_sha": "bd8092b67b5103bdd52e300f75889442275c3117",
+                        "git_sha": "a33464f205fa15305bfe268546f6607b6f4d4753",
                         "installed_by": ["modules"]
                     },
                     "gawk": {
@@ -37,14 +37,13 @@
                     },
                     "gunzip": {
                         "branch": "master",
-                        "git_sha": "e06548bfa36ee31869b81041879dd6b3a83b1d57",
+                        "git_sha": "8663c9d215573d4bd0417c93dbc310aa9e6720a4",
                         "installed_by": ["modules"]
                     },
                     "multiqc": {
                         "branch": "master",
                         "git_sha": "911696ea0b62df80e900ef244d7867d177971f73",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/multiqc/multiqc.diff"
+                        "installed_by": ["modules"]
                     },
                     "star/align": {
                         "branch": "master",
@@ -53,16 +52,18 @@
                     },
                     "star/genomegenerate": {
                         "branch": "master",
-                        "git_sha": "603ecbd9f45300c9788f197d2a15a005685b4220",
-                        "installed_by": ["modules"],
-                        "patch": "modules/nf-core/star/genomegenerate/star-genomegenerate.diff"
+                        "git_sha": "cd22a76c78b09f7837a5a75642774a4bf48c92ba",
+                        "installed_by": ["modules"]
                     },
                     "trimgalore": {
                         "branch": "master",
-                        "git_sha": "911696ea0b62df80e900ef244d7867d177971f73",
+                        "git_sha": "15b935d16e285a1f20a581672d793e2f8bf95889",
                         "installed_by": ["modules"]
                     }
                 }
+            },
+            "subworkflows": {
+                "nf-core": {}
             }
         }
     }
