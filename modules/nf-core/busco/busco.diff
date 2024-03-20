@@ -1,12 +1,31 @@
 Changes in module 'nf-core/busco'
 --- modules/nf-core/busco/main.nf
 +++ modules/nf-core/busco/main.nf
-@@ -1,5 +1,5 @@
- process BUSCO {
--    tag "$meta.id"
-+    tag "${meta.id}-${lineage}"
-     label 'process_medium'
+@@ -9,7 +9,6 @@
  
-     conda "bioconda::busco=5.4.3"
+     input:
+     tuple val(meta), path('tmp_input/*')
+-    val mode                              // Required:    One of genome, proteins, or transcriptome
+     val lineage                           // Required:    lineage to check against, "auto" enables --auto-lineage instead
+     path busco_lineages_path              // Recommended: path to busco lineages - downloads if not set
+     path config_file                      // Optional:    busco configuration file
+@@ -30,9 +29,6 @@
+     task.ext.when == null || task.ext.when
+ 
+     script:
+-    if ( mode !in [ 'genome', 'proteins', 'transcriptome' ] ) {
+-        error "Mode must be one of 'genome', 'proteins', or 'transcriptome'."
+-    }
+     def args = task.ext.args ?: ''
+     def prefix = task.ext.prefix ?: "${meta.id}-${lineage}"
+     def busco_config = config_file ? "--config $config_file" : ''
+@@ -73,7 +69,6 @@
+         --cpu $task.cpus \\
+         --in "\$INPUT_SEQS" \\
+         --out ${prefix}-busco \\
+-        --mode $mode \\
+         $busco_lineage \\
+         $busco_lineage_dir \\
+         $busco_config \\
 
 ************************************************************
