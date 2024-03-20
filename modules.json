@@ -1,33 +1,6 @@
 {
     "name": "kherronism/rewarewaannotation",
     "homePage": "https://github.com/kherronism/rewarewaannotation",
-    "repos": {
-        "git@github.com:kherronism/nf-modules.git": {
-            "modules": {
-                "kherronism": {
-                    "braker3": {
-                        "branch": "master",
-                        "git_sha": "31013af2a393df4f2db602f26833649af4ac2f98",
-                        "installed_by": ["modules"]
-                    },
-                    "picard/collectalignmentsummarymetrics": {
-                        "branch": "master",
-                        "git_sha": "2555359b34b79ee068b0abf7d1da9b19b88ca522",
-                        "installed_by": ["modules"]
-                    },
-                    "repeatmasker": {
-                        "branch": "master",
-                        "git_sha": "62b5972290d9e7b93752aa25eb667ad24cfedec9",
-                        "installed_by": ["modules"]
-                    },
-                    "repeatmodeler": {
-                        "branch": "master",
-                        "git_sha": "f0b64af1ee3b4ae317a9e238f72f3f9302310d23",
-                        "installed_by": ["modules"]
-                    }
-                }
-            }
-        },
         "https://github.com/nf-core/modules.git": {
             "modules": {
                 "nf-core": {

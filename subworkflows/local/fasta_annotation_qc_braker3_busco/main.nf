@@ -1,4 +1,4 @@
-include { BRAKER3                   } from '../../../modules/kherronism/braker3/main'
+include { BRAKER3                   } from '../../../modules/local/braker3/main'
 include { BUSCO as BUSCO_ANNOTATION } from '../../../modules/nf-core/busco/main'
 include { AGAT_SPSTATISTICS         } from '../../../modules/nf-core/agat/spstatistics/main'
 

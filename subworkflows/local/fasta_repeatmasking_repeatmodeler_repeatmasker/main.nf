@@ -1,5 +1,5 @@
-include { REPEATMODELER } from '../../../modules/kherronism/repeatmodeler/main'
-include { REPEATMASKER  } from '../../../modules/kherronism/repeatmasker/main'
+include { REPEATMODELER } from '../../../modules/local/repeatmodeler/main'
+include { REPEATMASKER  } from '../../../modules/local/repeatmasker/main'
 
 workflow FASTA_REPEATMASKING_REPEATMODELER_REPEATMASKER {
 

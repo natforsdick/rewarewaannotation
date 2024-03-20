@@ -1,6 +1,6 @@
 include { FASTQ_QC_FASTQC_TRIMGALORE            } from '../../../subworkflows/local/fastq_qc_fastqc_trimgalore/main'
 include { FASTQ_INDEX_ALIGN_STAR_SAMTOOLS       } from '../../../subworkflows/local/fastq_index_align_star_samtools/main'
-include { PICARD_COLLECTALIGNMENTSUMMARYMETRICS } from '../../../modules/kherronism/picard/collectalignmentsummarymetrics/main'
+include { PICARD_COLLECTALIGNMENTSUMMARYMETRICS } from '../../../modules/local/picard/collectalignmentsummarymetrics/main'
 
 workflow FASTQ_QC_ALIGN_STATS {
 
