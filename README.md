@@ -79,6 +79,9 @@ Default steps in the pipeline:
    
    `nextflow run /path/to/rewarewaannotation/ -profile test,nesi,singularity --outdir results &> anno-test.log`
 
+   > [!NOTE]
+   > The `anno-test.log` file you create will capture the `stdout`. The `.nextflow.log` file generated in your output directory is much more comprehensive. If there are errors, it will direct you to the location of the associated commands script. 
+
   The test should spawn multiple slurm jobs during processing. It should complete within around 15 minutes, logging one error, which will be a result of the test dataset being too small to run Braker3 - this is an expected error! 
   
   Example of the end of the `anno-test.log` file:
@@ -101,6 +104,9 @@ Default steps in the pipeline:
    `singularity cache clean`
 
    You may wish to additionally test that your `params.yml` works correctly when passing your own input data. I recommend making a test `params.yml` and using the following as inputs: extract one scaffold from your genome assembly, and 1000 paired reads from one set of your input RNAseq data files. Test these inputs via the [`NeSI_slurm.sh`](test-datasets/kniExce/NeSI_slurm.sh) script. This will efficiently test that your `params.yml` is formatted correctly, and that your paths to data files are correct, before committing more resources. 
+
+  > [!NOTE]  
+  > If you have run a test previously and not cleared the cache afterwards, your next run should use the existing Singularity images, so the log will not report messages like `Pulling Singularity image`. You should only be concerned if you then get messages that program commands are not found (e.g., `Command error: .command.sh: line 8: fastqc: command not found`). 
 
 ### Setting up to run for your data on NeSI via SLURM
 
