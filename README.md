@@ -100,6 +100,8 @@ Default steps in the pipeline:
    
    `singularity cache clean`
 
+   You may wish to additionally test that your `params.yml` works correctly when passing your own input data. I recommend making a test `params.yml` and using the following as inputs: extract one scaffold from your genome assembly, and 1000 paired reads from one set of your input RNAseq data files. Test these inputs via the [`NeSI_slurm.sh`](test-datasets/kniExce/NeSI_slurm.sh) script. This will efficiently test that your `params.yml` is formatted correctly, and that your paths to data files are correct, before committing more resources. 
+
 ### Setting up to run for your data on NeSI via SLURM
 
 In brief:
