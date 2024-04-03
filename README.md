@@ -5,7 +5,7 @@
 
 ## Introduction
 
-**rewarewaannotation** is a bioinformatics pipeline built by Ann McArtney and ported into Nextflow by Katie Herron, originally developed for the annotation of the rewarewa (*Knightia excelsa*) genome. The pipeline takes paired-end RNA-seq reads and a genome assembly as input and conducts QC, trimming and alignment. The target genome is repeat masked prior to both the genome and RNA-seq evidence being given as input to BRAKER3.
+**rewarewaannotation** is a bioinformatics pipeline built by Ann McArtney and ported into Nextflow by Katie Herron, originally developed for the annotation of the rewarewa (*Knightia excelsa*) genome. The pipeline takes paired-end RNA-seq reads and a genome assembly as input and conducts QC, trimming and alignment. Porting to run on a SLURM system as described below was done by Natalie Forsdick, Chris Hakkaart, and Dini Senanayake. In this pipeline, the target genome is repeat masked prior to both the genome and RNA-seq evidence being given as input to BRAKER3.
 
 Default steps in the pipeline:
 1. Merge re-sequenced FastQ files ([`cat`](http://www.linfo.org/cat.html))
