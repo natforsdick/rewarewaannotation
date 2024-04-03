@@ -1,15 +1,16 @@
 #!/bin/bash -l
 #SBATCH --job-name=annotation
 #SBATCH --account=ACCOUNTID # set to NeSI account ID
-#SBATCH --ntasks=1
-#SBATCH --nodes=1
 #SBATCH --cpus-per-task=2
-#SBATCH --ntasks-per-node=1
-#SBATCH --mem=3G
-#SBATCH --time 02:00:00 # as yet unclear how long a full run with 1 Gb genome will take - perhaps up to 5-00:00:00
+#SBATCH --mem=2G
+#SBATCH --time 5-00:00:00
 #SBATCH --mail-user=EMAIL # insert user email
 #SBATCH --mail-type=ALL
 #SBATCH --output=slurm-%x-%A-%a.log
+
+# NeSI_slurm.sl 
+# Launches annotation pipeline via SLURM
+# test of one scaffold (23 Mb) and 1000 paired reads input data takes around 2 hrs
 
 # ensure that paths to cache and tmpdir are functional
 setfacl -b "${NXF_SINGULARITY_CACHEDIR}" /path/to/rewarewaannotation/main.nf
