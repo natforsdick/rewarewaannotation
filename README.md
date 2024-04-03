@@ -79,8 +79,8 @@ Default steps in the pipeline:
    
    `nextflow run /path/to/rewarewaannotation/ -profile test,nesi,singularity --outdir results &> anno-test.log`
 
-   > [!NOTE]
-   > The `anno-test.log` file you create will capture the `stdout`. The `.nextflow.log` file generated in your output directory is much more comprehensive. If there are errors, it will direct you to the location of the associated commands script. 
+> [!NOTE]
+> The `anno-test.log` file you create will capture the `stdout`. The `.nextflow.log` file generated in your output directory is much more comprehensive. If there are errors, it will direct you to the location of the associated commands script. 
 
   The test should spawn multiple slurm jobs during processing. It should complete within around 15 minutes, logging one error, which will be a result of the test dataset being too small to run Braker3 - this is an expected error! 
   
