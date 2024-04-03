@@ -77,11 +77,26 @@ Default steps in the pipeline:
    
    Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data. **Note**: The nextflow process will also make a `.nextflow.log` file which is more detailed than your `anno-test.log`, but if you don't rename it, it will be overwritten.
    
-   `nextflow run /path/to/rewarewaannotation/ -profile test,singularity --outdir results &> anno-test.log`
+   `nextflow run /path/to/rewarewaannotation/ -profile test,nesi,singularity --outdir results &> anno-test.log`
 
-  The test should complete, logging one error, which will be a result of the test dataset being too small to run Braker3 - this is an expected error! If there are no other errors or warnings, you should be good to go.
+  The test should spawn multiple slurm jobs during processing. It should complete within around 15 minutes, logging one error, which will be a result of the test dataset being too small to run Braker3 - this is an expected error! 
+  
+  Example of the end of the `anno-test.log` file:
+  
+  ```
+  -[kherronism/rewarewaannotation] Pipeline completed successfully, but with errored process(es) -
+  Completed at: 04-Apr-2024 10:37:43
+  Duration    : 8m 21s
+  CPU hours   : 0.6 (1.9% failed)
+  Succeeded   : 15
+  Ignored     : 1
+  Failed      : 1
+  ```
+  Check the `.nextflow.log` file created. Near the end, you will see the Braker3 error: `NOTE: Process `KHERRONISM_REWAREWAANNOTATION:REWAREWAANNOTATION:FASTA_ANNOTATION_QC_BRAKER3_BUSCO:BRAKER3 (GENOME_A)` terminated with an error exit status (1) -- Error is ignored`. If there are no more than one errors reported in the `anno-test.log`, you should be good to go.
    
-   You can test resuming the pipeline using `-resume`. Once you have run the test, I recommend cleaning out the singularity cache prior to starting a run with real data.
+   You can test resuming the pipeline using `-resume`. 
+   
+   If testing fails, I recommend cleaning out the singularity cache before starting a new test. This ensures that you are testing the entire pipeline process.
    
    `singularity cache clean`
 
@@ -126,7 +141,7 @@ However, we want to make use of the SLURM scheduler and allow NextFlow to make i
 
 ### Running on SLURM
 
-Along with making your samplesheet, you will need a SLURM script like this example: [`NeSI_slurm.sh`](test-datasets/kniExce/NeSI_slurm.sh). We have modified the [`sonic.config`](test-datasets/kniExce/sonic.config) to run on NeSI. 
+Along with making your samplesheet, you will need a SLURM script like this example: [`NeSI_slurm.sh`](test-datasets/kniExce/NeSI_slurm.sh). This is loosely based on the [`sonic.config`](test-datasets/kniExce/sonic.config), modified to run on NeSI's SLURM setup. 
 
 **For a full breakdown of available params for the pipeline see [this page](docs/parameters.md).**
 
