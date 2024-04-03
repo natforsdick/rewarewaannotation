@@ -49,7 +49,7 @@ Default steps in the pipeline:
    
 6. Set up the rest of the environment ready to run the test config. We are running this pipeline with Singularity - please ignore the message regarding it being deprecated on NeSI.
    
-   We will need to set up cache and temporary directories (e.g., `/nesi/nobackup/landcare03691/singularity-cache`, `/nesi/nobackup/landcare03691/tmp-anno`, and run `setfacl -b` commands to bypass NeSI security access control on `nobackup` to allow `pull` from online repos. 
+   We will need to set up cache and temporary directories (e.g., `/nesi/nobackup/landcare03691/singularity-cache`, `/nesi/nobackup/landcare03691/tmp-anno`), and run `setfacl -b` commands to bypass NeSI security access control on `nobackup` to allow `pull` from online repos. We also need to set up a directory for `Braker3` to make `Augustus` scripts in (e.g., `/nesi/nobackup/landcare03691/augustus/`).
    
    For repeat usage, we recommend adding the following to your `~/.bashrc`:
 
@@ -61,6 +61,8 @@ Default steps in the pipeline:
   export NXF_SINGULARITY_CACHEDIR=/path/to/singularity-cache
   export SINGULARITY_CACHEDIR=/path/to/singularity-cache
   export SINGULARITY_TMPDIR=/path/to/tmp-anno
+
+  export AUGUSTUS_SCRIPTS_PATH=/path/to/augustus
   ```
 
   Then prior to running the pipeline, you only need to do the following:
