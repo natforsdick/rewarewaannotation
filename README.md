@@ -63,6 +63,7 @@ Default steps in the pipeline:
   export SINGULARITY_TMPDIR=/path/to/tmp-anno
 
   export AUGUSTUS_SCRIPTS_PATH=/path/to/augustus
+  export AUGUSTUS_CONFIG_PATH=~/MyAugustusConfig
   ```
 
   Then prior to running the pipeline, you only need to do the following:
