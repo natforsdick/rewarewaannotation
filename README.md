@@ -152,7 +152,7 @@ However, we want to make use of the SLURM scheduler and allow NextFlow to make i
 
 ### Running on SLURM
 
-Along with making your samplesheet, you will need a SLURM script like this example: [`NeSI_slurm.sh`](test-datasets/kniExce/NeSI_slurm.sh). This is loosely based on the [`sonic.config`](test-datasets/kniExce/sonic.config), modified to run on NeSI's SLURM setup. 
+Along with making your samplesheet, you will need a SLURM script like this example: [`NeSI_slurm.sh`](test-datasets/kniExce/NeSI_slurm.sl). This is loosely based on the [`sonic.config`](test-datasets/kniExce/sonic.config), modified to run on NeSI's SLURM setup. 
 
 **For a full breakdown of available params for the pipeline see [this page](docs/parameters.md).**
 
