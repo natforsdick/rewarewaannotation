@@ -43,6 +43,8 @@ process BRAKER3 {
         --species ${prefix} \\
         --workingdir ${prefix} \\
         --threads ${task.cpus} \\
+        --AUGUSTUS_CONFIG_PATH=$AUGUSTUS_CONFIG_PATH \\
+        --AUGUSTUS_SCRIPTS_PATH=$AUGUSTUS_SCRIPTS_PATH \\
         ${hints} \\
         ${bam} \\
         ${proteins} \\
